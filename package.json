@@ -1,0 +1,39 @@
+{
+    "name": "barbearia-template-web",
+    "version": "0.0.0",
+    "scripts": {
+        "ng": "ng",
+        "start": "ng serve",
+        "build": "ng build",
+        "watch": "ng build --watch --configuration development",
+        "test": "ng test",
+        "lint": "ng lint"
+    },
+    "private": true,
+    "packageManager": "npm@10.8.2",
+    "dependencies": {
+        "@angular/common": "^21.2.0",
+        "@angular/compiler": "^21.2.0",
+        "@angular/core": "^21.2.0",
+        "@angular/forms": "^21.2.0",
+        "@angular/platform-browser": "^21.2.0",
+        "@angular/router": "^21.2.0",
+        "@omnedia/ngx-fade": "^4.0.1",
+        "@omnedia/ngx-shine-border": "^4.0.1",
+        "rxjs": "~7.8.0",
+        "tslib": "^2.3.0"
+    },
+    "devDependencies": {
+        "@angular/build": "^21.2.6",
+        "@angular/cli": "^21.2.6",
+        "@angular/compiler-cli": "^21.2.0",
+        "@eslint/js": "^10.0.1",
+        "angular-eslint": "21.3.1",
+        "eslint": "^10.0.3",
+        "jsdom": "^28.0.0",
+        "prettier": "^3.8.1",
+        "typescript": "~5.9.2",
+        "typescript-eslint": "8.56.1",
+        "vitest": "^4.0.8"
+    }
+}

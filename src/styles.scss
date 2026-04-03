@@ -1,0 +1,99 @@
+@use './styles/reset';
+@use './styles/variables';
+@use './styles/mixins';
+
+:root {
+    --color-primary: #c8a964;
+    --color-secondary: #1a1a2e;
+    --color-background: #0f0f1a;
+    --color-surface: #1a1a2e;
+    --color-text: #ffffff;
+    --color-text-secondary: #a0a0b0;
+    --color-accent: #d4af37;
+    --font-family-base: 'Inter', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: radial-gradient(circle at 15% 0%, #2b2b45, var(--color-background) 45%);
+    color: var(--color-text);
+    font-family: var(--font-family-base);
+}
+
+input,
+button,
+select {
+    font: inherit;
+}
+
+button {
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+button:hover {
+    filter: brightness(1.05);
+}
+
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='time']::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.45) contrast(1.1);
+    opacity: 0.92;
+    cursor: pointer;
+}
+
+.authentication-shell {
+    max-width: 420px;
+    margin: 36px auto;
+    padding: 20px;
+    display: grid;
+    gap: 12px;
+    background: var(--color-surface);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+}
+
+.authentication-shell form {
+    display: grid;
+    gap: 10px;
+}
+
+.authentication-shell label {
+    display: grid;
+    gap: 6px;
+}
+
+.authentication-shell input,
+.authentication-shell button {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--color-text);
+    padding: 10px;
+}
+
+.authentication-shell button {
+    background: var(--color-primary);
+    color: #101010;
+    font-weight: 700;
+    border: none;
+}
+
+.authentication-shell a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.error-message {
+    color: #ff9f9f;
+}
+
+.success-message {
+    color: #9cffb2;
+}
