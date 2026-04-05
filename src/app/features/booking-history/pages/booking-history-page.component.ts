@@ -1,8 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgxFadeComponent } from '@omnedia/ngx-fade';
-import { NgxShineBorderComponent } from '@omnedia/ngx-shine-border';
 import { AppointmentInterface } from '../../../core/models/domain.models';
 import { CustomerBookingCookieService } from '../../../core/services/customer-booking-cookie.service';
 import { BookingHistoryApiService } from '../services/booking-history-api.service';
@@ -11,12 +9,10 @@ import { formatDateTimeLabel } from '../../../shared/utils/date-formatter.util';
 @Component({
     selector: 'app-booking-history-page',
     standalone: true,
-    imports: [CommonModule, FormsModule, NgxFadeComponent, NgxShineBorderComponent],
+    imports: [CommonModule, FormsModule],
     template: `
         <section class="page-shell">
-            <om-fade direction="up">
-                <om-shine-border>
-                    <div class="query-block">
+            <div class="query-block">
                         <h2>Historico</h2>
                         <p class="stored-customer-name" *ngIf="customerFullName()">
                             Cliente: {{ customerFullName() }}
@@ -91,13 +87,10 @@ import { formatDateTimeLabel } from '../../../shared/utils/date-formatter.util';
                                 Limpar filtro
                             </button>
                         </div>
-                    </div>
-                </om-shine-border>
-            </om-fade>
+            </div>
 
-            <om-fade direction="up" *ngFor="let appointment of appointments()">
-                <om-shine-border>
-                    <article class="appointment-card">
+            <div *ngFor="let appointment of appointments()">
+                <article class="appointment-card">
                         <h3>{{ appointment.serviceName }}</h3>
                         <p>{{ appointment.barberName }}</p>
                         <small>{{ formatDateTimeLabel(appointment.appointmentDateTime) }}</small>
@@ -123,9 +116,8 @@ import { formatDateTimeLabel } from '../../../shared/utils/date-formatter.util';
                         >
                             Cancelar
                         </button>
-                    </article>
-                </om-shine-border>
-            </om-fade>
+                </article>
+            </div>
         </section>
     `,
     styles: `

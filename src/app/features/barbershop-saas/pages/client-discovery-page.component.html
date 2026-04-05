@@ -1,0 +1,150 @@
+<div class="client-discovery-page">
+    <header class="client-discovery-page__topbar">
+        <div class="client-discovery-page__topbar-inner">
+            <a routerLink="/">
+                <p-button label="Voltar ao inicio" severity="secondary" />
+            </a>
+            <span class="client-discovery-page__tag">Busca para clientes</span>
+        </div>
+    </header>
+
+    <section class="client-discovery-page__hero">
+        <div class="client-discovery-page__hero-inner">
+            <h1 class="client-discovery-page__title">Encontre uma barbearia</h1>
+            <p class="client-discovery-page__hero-text">
+                Veja unidades perto de voce (ou na regiao de referencia se a localizacao
+                estiver bloqueada), confira se estao abertas, servicos e peca o WhatsApp
+                com um clique.
+            </p>
+            <p class="client-discovery-page__location">{{ locationMessageSignal() }}</p>
+            <div class="client-discovery-page__search">
+                <input
+                    pInputText
+                    type="search"
+                    placeholder="Buscar por nome da barbearia"
+                    [ngModel]="searchQuerySignal()"
+                    (ngModelChange)="searchQuerySignal.set($event)"
+                    (keyup.enter)="onSearchSubmit()"
+                />
+                <p-button label="Buscar" (click)="onSearchSubmit()" />
+            </div>
+        </div>
+    </section>
+
+    <section class="client-discovery-page__tips" aria-label="Dicas">
+        <div class="client-discovery-page__tips-inner">
+            <article class="client-discovery-page__tip">
+                <h2 class="client-discovery-page__tip-title">Localizacao</h2>
+                <p class="client-discovery-page__tip-text">
+                    Permitir localizacao melhora a ordem por distancia. Sem permissao,
+                    usamos uma regiao de referencia para ainda mostrar resultados.
+                </p>
+            </article>
+            <article class="client-discovery-page__tip">
+                <h2 class="client-discovery-page__tip-title">WhatsApp</h2>
+                <p class="client-discovery-page__tip-text">
+                    Informe nome e WhatsApp uma vez; guardamos para agilizar o proximo
+                    contato com a mesma barbearia.
+                </p>
+            </article>
+            <article class="client-discovery-page__tip">
+                <h2 class="client-discovery-page__tip-title">Servicos</h2>
+                <p class="client-discovery-page__tip-text">
+                    Abra a lista de servicos antes de chamar para saber precos e tempo
+                    medio de cada corte ou combo.
+                </p>
+            </article>
+        </div>
+    </section>
+
+    <section class="client-discovery-page__results">
+        <h2 class="client-discovery-page__results-title">Resultados</h2>
+        @if (nearbyDiscoveryRequestFinishedSignal() && barbershopsSignal().length === 0) {
+            <p class="client-discovery-page__empty">
+                Nenhuma barbearia encontrada com os filtros atuais. Tente outro nome ou
+                amplie a busca quando a API tiver mais cadastros na regiao.
+            </p>
+        }
+        <div class="client-discovery-page__grid">
+            @for (shop of barbershopsSignal(); track shop.barbershopTenantId) {
+                <p-card class="client-discovery-page__card" [header]="shop.tradingName">
+                    <div class="client-discovery-page__card-image-wrap">
+                        <img [src]="shop.profileImageUrl" [alt]="shop.tradingName" />
+                    </div>
+                    <p class="client-discovery-page__address">
+                        {{ shop.formattedAddress }}
+                    </p>
+                    <p-tag
+                        [severity]="shop.isOpenNow ? 'success' : 'danger'"
+                        [value]="shop.isOpenNow ? 'Aberto agora' : 'Fechado agora'"
+                    />
+                    <div class="client-discovery-page__actions">
+                        <p-button
+                            label="Ver servicos"
+                            (click)="openServicesDialog(shop.barbershopTenantId)"
+                        />
+                        <p-button
+                            label="Ver WhatsApp"
+                            severity="help"
+                            (click)="openContactFlow(shop.barbershopTenantId)"
+                        />
+                    </div>
+                    @if (
+                        revealedWhatsappSignal() &&
+                        contactContextBarbershopIdSignal() === shop.barbershopTenantId
+                    ) {
+                        <p class="client-discovery-page__whatsapp">
+                            WhatsApp: {{ revealedWhatsappSignal() }}
+                        </p>
+                    }
+                </p-card>
+            }
+        </div>
+    </section>
+
+    <p-dialog
+        header="Seus dados"
+        [visible]="contactDialogVisibleSignal()"
+        (visibleChange)="contactDialogVisibleSignal.set($event)"
+        [modal]="true"
+        [style]="{ width: 'min(420px, 92vw)' }"
+    >
+        <div class="client-discovery-page__dialog-fields">
+            <label>
+                Nome
+                <input
+                    pInputText
+                    [ngModel]="clientDisplayNameInputSignal()"
+                    (ngModelChange)="clientDisplayNameInputSignal.set($event)"
+                />
+            </label>
+            <label>
+                WhatsApp
+                <input
+                    pInputText
+                    [ngModel]="clientWhatsappInputSignal()"
+                    (ngModelChange)="clientWhatsappInputSignal.set($event)"
+                />
+            </label>
+        </div>
+        <p-button label="Continuar" (click)="submitLeadAndRevealWhatsapp()" />
+    </p-dialog>
+
+    <p-dialog
+        header="Servicos"
+        [visible]="servicesDialogVisibleSignal()"
+        (visibleChange)="servicesDialogVisibleSignal.set($event)"
+        [modal]="true"
+        [style]="{ width: 'min(480px, 92vw)' }"
+    >
+        <ul class="client-discovery-page__service-list">
+            @for (service of servicesForSelectedSignal(); track service.id) {
+                <li>
+                    {{ service.serviceName }} —
+                    {{ service.priceInCents / 100 | number: '1.2-2' }} —
+                    {{ service.averageDurationInMinutes }} min
+                </li>
+            }
+        </ul>
+    </p-dialog>
+</div>

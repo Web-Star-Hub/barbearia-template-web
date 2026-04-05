@@ -1,0 +1,111 @@
+:host {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.barbershop-login-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 24px 20px 56px;
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+.barbershop-login-page__top {
+    max-width: 1200px;
+    margin: 0 auto 28px;
+}
+
+.barbershop-login-page__layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    gap: 36px;
+    align-items: start;
+}
+
+@media (min-width: 960px) {
+    .barbershop-login-page__layout {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+        gap: 48px;
+    }
+}
+
+.barbershop-login-page__aside {
+    padding: 8px 0 0;
+}
+
+.barbershop-login-page__title {
+    margin: 0 0 16px;
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    line-height: 1.15;
+}
+
+.barbershop-login-page__lead {
+    margin: 0 0 20px;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    font-size: 1.05rem;
+    max-width: 36rem;
+}
+
+.barbershop-login-page__bullets {
+    margin: 0 0 24px;
+    padding-left: 1.2rem;
+    color: var(--color-text-secondary);
+    line-height: 1.65;
+}
+
+.barbershop-login-page__aside-foot {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+}
+
+.barbershop-login-page__aside-foot a {
+    color: var(--color-primary);
+}
+
+.barbershop-login-page__main {
+    display: grid;
+    gap: 16px;
+}
+
+.barbershop-login-page__hint {
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+.barbershop-login-page__search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.barbershop-login-page__search input {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.barbershop-login-page__form {
+    display: grid;
+    gap: 14px;
+    padding: 22px;
+    background: var(--color-surface);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.barbershop-login-page__form label {
+    display: grid;
+    gap: 6px;
+}
+
+.barbershop-login-page__error {
+    color: #ff9f9f;
+    margin: 0;
+}

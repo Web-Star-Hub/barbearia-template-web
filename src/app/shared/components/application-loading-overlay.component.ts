@@ -1,21 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { NgxFadeComponent } from '@omnedia/ngx-fade';
 import { RequestLoadingStateService } from '../../core/services/request-loading-state.service';
 
 @Component({
     selector: 'app-application-loading-overlay',
     standalone: true,
-    imports: [CommonModule, NgxFadeComponent],
+    imports: [CommonModule],
     template: `
-        <om-fade direction="up" *ngIf="isLoading()">
+        <div *ngIf="isLoading()">
             <div class="loading-overlay-shell">
                 <div class="loading-overlay-card">
                     <span class="loading-spinner"></span>
                     <p>Carregando...</p>
                 </div>
             </div>
-        </om-fade>
+        </div>
     `,
     styles: `
         .loading-overlay-shell {

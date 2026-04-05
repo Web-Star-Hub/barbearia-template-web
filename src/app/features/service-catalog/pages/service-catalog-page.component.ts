@@ -2,8 +2,6 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { NgxFadeComponent } from '@omnedia/ngx-fade';
-import { NgxShineBorderComponent } from '@omnedia/ngx-shine-border';
 import { ServiceCatalogApiService } from '../services/service-catalog-api.service';
 import {
     BusinessLocationInterface,
@@ -15,53 +13,42 @@ import { SchedulingSelectionService } from '../../scheduling/services/scheduling
 @Component({
     selector: 'app-service-catalog-page',
     standalone: true,
-    imports: [CommonModule, NgxFadeComponent, NgxShineBorderComponent, ServiceCardComponent],
+    imports: [CommonModule, ServiceCardComponent],
     template: `
         <section class="page-shell">
-            <om-fade direction="up">
-                <om-shine-border>
-                    <div class="title-block">
-                        <h2>Escolha seu servico</h2>
-                        <p class="subtitle">
-                            Selecione uma opcao para continuar com o agendamento
-                        </p>
-                    </div>
-                </om-shine-border>
-            </om-fade>
+            <div class="title-block">
+                <h2>Escolha seu servico</h2>
+                <p class="subtitle">
+                    Selecione uma opcao para continuar com o agendamento
+                </p>
+            </div>
             <div class="service-list">
-                <om-fade
-                    direction="up"
-                    *ngFor="let serviceCatalogItem of serviceCatalogItems()"
-                >
+                <div *ngFor="let serviceCatalogItem of serviceCatalogItems()">
                     <app-service-card
                         [serviceCatalogItem]="serviceCatalogItem"
                         (selectService)="onServiceSelected($event)"
                     />
-                </om-fade>
+                </div>
             </div>
 
-            <om-fade direction="up" *ngIf="businessLocation() as currentBusinessLocation">
-                <om-shine-border>
-                    <section class="location-block">
-                        <h3>Endereco da barbearia</h3>
-                        <p>{{ currentBusinessLocation.fullAddress }}</p>
-                        <iframe
-                            class="location-map-frame"
-                            [src]="businessLocationMapEmbedUrl()"
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade"
-                            title="Mapa da barbearia"
-                        ></iframe>
-                        <a
-                            class="location-map-link"
-                            [href]="businessLocationMapSearchUrl()"
-                            target="_blank"
-                        >
-                            Abrir no Google Maps
-                        </a>
-                    </section>
-                </om-shine-border>
-            </om-fade>
+            <section class="location-block" *ngIf="businessLocation() as currentBusinessLocation">
+                <h3>Endereco da barbearia</h3>
+                <p>{{ currentBusinessLocation.fullAddress }}</p>
+                <iframe
+                    class="location-map-frame"
+                    [src]="businessLocationMapEmbedUrl()"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="Mapa da barbearia"
+                ></iframe>
+                <a
+                    class="location-map-link"
+                    [href]="businessLocationMapSearchUrl()"
+                    target="_blank"
+                >
+                    Abrir no Google Maps
+                </a>
+            </section>
         </section>
     `,
     styles: `

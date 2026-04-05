@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { NgxFadeComponent } from '@omnedia/ngx-fade';
-import { NgxShineBorderComponent } from '@omnedia/ngx-shine-border';
 
 @Component({
     selector: 'app-bottom-navigation',
@@ -11,26 +9,22 @@ import { NgxShineBorderComponent } from '@omnedia/ngx-shine-border';
         CommonModule,
         RouterLink,
         RouterLinkActive,
-        NgxFadeComponent,
-        NgxShineBorderComponent,
     ],
     template: `
         <div class="bottom-navigation-shell">
-            <om-fade direction="up">
-                <om-shine-border class="bottom-navigation-shine-border">
-                    <nav class="bottom-navigation">
-                        <a
-                            routerLink="/agendar"
-                            routerLinkActive="active"
-                            [routerLinkActiveOptions]="{ exact: true }"
-                        >
-                            Agendar
-                        </a>
-                        <a routerLink="/historico" routerLinkActive="active">Historico</a>
-                        <a routerLink="/admin" routerLinkActive="active">Admin</a>
-                    </nav>
-                </om-shine-border>
-            </om-fade>
+            <div class="bottom-navigation-shine-border">
+                <nav class="bottom-navigation">
+                    <a
+                        routerLink="/agendar"
+                        routerLinkActive="active"
+                        [routerLinkActiveOptions]="{ exact: true }"
+                    >
+                        Agendar
+                    </a>
+                    <a routerLink="/historico" routerLinkActive="active">Historico</a>
+                    <a routerLink="/admin" routerLinkActive="active">Admin</a>
+                </nav>
+            </div>
         </div>
     `,
     styles: `

@@ -2,40 +2,34 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgxFadeComponent } from '@omnedia/ngx-fade';
-import { NgxShineBorderComponent } from '@omnedia/ngx-shine-border';
 import { AdminAccessStateService } from '../../../core/services/admin-access-state.service';
 
 @Component({
     selector: 'app-admin-access-page',
     standalone: true,
-    imports: [CommonModule, FormsModule, NgxFadeComponent, NgxShineBorderComponent],
+    imports: [CommonModule, FormsModule],
     template: `
         <section class="admin-access-shell">
-            <om-fade direction="up">
-                <om-shine-border>
-                    <div class="admin-access-card">
-                        <h2>Acesso administrativo</h2>
-                        <p>
-                            Informe o codigo administrativo para desbloquear o painel.
-                        </p>
-                        <label>
-                            Codigo administrativo
-                            <input
-                                type="password"
-                                [ngModel]="adminAccessKeyInput()"
-                                (ngModelChange)="adminAccessKeyInput.set($event)"
-                            />
-                        </label>
-                        <button type="button" (click)="authenticateAdminAccess()">
-                            Entrar no painel
-                        </button>
-                        <span class="admin-access-feedback" *ngIf="feedbackMessage()">
-                            {{ feedbackMessage() }}
-                        </span>
-                    </div>
-                </om-shine-border>
-            </om-fade>
+            <div class="admin-access-card">
+                <h2>Acesso administrativo</h2>
+                <p>
+                    Informe o codigo administrativo para desbloquear o painel.
+                </p>
+                <label>
+                    Codigo administrativo
+                    <input
+                        type="password"
+                        [ngModel]="adminAccessKeyInput()"
+                        (ngModelChange)="adminAccessKeyInput.set($event)"
+                    />
+                </label>
+                <button type="button" (click)="authenticateAdminAccess()">
+                    Entrar no painel
+                </button>
+                <span class="admin-access-feedback" *ngIf="feedbackMessage()">
+                    {{ feedbackMessage() }}
+                </span>
+            </div>
         </section>
     `,
     styles: `

@@ -1,0 +1,102 @@
+.barbershop-panel {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+}
+
+.barbershop-panel__header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.barbershop-panel__user {
+    color: var(--color-text-secondary);
+    margin: 4px 0 0;
+}
+
+.barbershop-panel__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.barbershop-panel__section {
+    padding: 20px;
+    background: var(--color-surface);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.barbershop-panel__form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.barbershop-panel__stack {
+    display: grid;
+    gap: 12px;
+}
+
+.barbershop-panel__stack label {
+    display: grid;
+    gap: 6px;
+}
+
+.barbershop-panel__inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.barbershop-panel__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.barbershop-panel__table th,
+.barbershop-panel__table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 8px;
+    text-align: left;
+}
+
+.barbershop-panel__textarea {
+    width: 100%;
+    font-family: monospace;
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--color-text);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.barbershop-panel__password {
+    font-size: 1.25rem;
+    font-weight: 700;
+    word-break: break-all;
+}
+
+.barbershop-panel__upload-error {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 140, 140, 0.35);
+    background: rgba(60, 20, 20, 0.35);
+    color: #ffb4b4;
+}
+
+.barbershop-panel__file-field {
+    display: grid;
+    gap: 6px;
+    font-size: 0.88rem;
+    color: var(--color-text-secondary);
+}

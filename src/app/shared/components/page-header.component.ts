@@ -2,19 +2,16 @@ import { Component, signal } from '@angular/core';
 import { businessConfiguration } from '../../core/configuration/business.configuration';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NgxFadeComponent } from '@omnedia/ngx-fade';
-import { NgxShineBorderComponent } from '@omnedia/ngx-shine-border';
 import { AdminAccessStateService } from '../../core/services/admin-access-state.service';
 
 @Component({
     selector: 'app-page-header',
     standalone: true,
-    imports: [CommonModule, RouterLink, NgxFadeComponent, NgxShineBorderComponent],
+    imports: [CommonModule, RouterLink],
     template: `
         <header class="page-header-shell">
-            <om-fade direction="down">
-                <om-shine-border class="page-header-shine-border">
-                    <div class="page-header">
+            <div class="page-header-shine-border">
+                <div class="page-header">
                         <div class="page-header-primary-row">
                             <a
                                 class="page-header-brand-link"
@@ -84,9 +81,8 @@ import { AdminAccessStateService } from '../../core/services/admin-access-state.
                                 Sair
                             </button>
                         </div>
-                    </div>
-                </om-shine-border>
-            </om-fade>
+                </div>
+            </div>
         </header>
     `,
     styles: `

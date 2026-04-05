@@ -1,0 +1,204 @@
+:host {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.client-discovery-page {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+.client-discovery-page__topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 15, 26, 0.9);
+    backdrop-filter: blur(10px);
+}
+
+.client-discovery-page__topbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    justify-content: space-between;
+}
+
+.client-discovery-page__tag {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-primary);
+}
+
+.client-discovery-page__hero {
+    padding: 40px 20px 32px;
+    background:
+        radial-gradient(ellipse 70% 50% at 15% 0%, rgba(200, 169, 100, 0.1), transparent),
+        radial-gradient(ellipse 50% 40% at 95% 30%, rgba(90, 80, 140, 0.12), transparent);
+}
+
+.client-discovery-page__hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.client-discovery-page__title {
+    margin: 0 0 14px;
+    font-size: clamp(1.85rem, 4vw, 2.6rem);
+    line-height: 1.12;
+}
+
+.client-discovery-page__hero-text {
+    margin: 0 0 14px;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    max-width: 40rem;
+    font-size: 1.05rem;
+}
+
+.client-discovery-page__location {
+    color: var(--color-text-secondary);
+    margin: 0 0 18px;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+.client-discovery-page__search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    max-width: 640px;
+}
+
+.client-discovery-page__search input {
+    flex: 1 1 240px;
+    min-width: 0;
+}
+
+.client-discovery-page__tips {
+    padding: 32px 20px 24px;
+    border-block: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.client-discovery-page__tips-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    gap: 20px;
+}
+
+@media (min-width: 720px) {
+    .client-discovery-page__tips-inner {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.client-discovery-page__tip {
+    background: var(--color-surface);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 18px 20px;
+}
+
+.client-discovery-page__tip-title {
+    margin: 0 0 8px;
+    font-size: 1rem;
+}
+
+.client-discovery-page__tip-text {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.client-discovery-page__results {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px 64px;
+}
+
+.client-discovery-page__results-title {
+    margin: 0 0 20px;
+    font-size: 1.35rem;
+}
+
+.client-discovery-page__empty {
+    margin: 0 0 24px;
+    color: var(--color-text-secondary);
+    line-height: 1.55;
+    max-width: 40rem;
+}
+
+.client-discovery-page__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 600px) {
+    .client-discovery-page__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .client-discovery-page__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.client-discovery-page__card-image-wrap {
+    margin-bottom: 10px;
+}
+
+.client-discovery-page__card-image-wrap img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.client-discovery-page__address {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.client-discovery-page__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.client-discovery-page__whatsapp {
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+.client-discovery-page__dialog-fields {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.client-discovery-page__dialog-fields label {
+    display: grid;
+    gap: 6px;
+}
+
+.client-discovery-page__service-list {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--color-text-secondary);
+}

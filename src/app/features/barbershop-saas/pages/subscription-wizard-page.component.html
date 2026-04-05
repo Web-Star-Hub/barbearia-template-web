@@ -1,0 +1,356 @@
+<div class="subscription-wizard">
+    <a routerLink="/">
+        <p-button label="Cancelar" severity="secondary" />
+    </a>
+    <h1>Cadastro da barbearia</h1>
+
+    @if (subscriptionPlanCatalogRequestFailedSignal()) {
+        <p class="subscription-wizard__error">
+            Nao foi possivel carregar os planos. Verifique a API e
+            <a routerLink="/">volte ao inicio</a>
+            .
+        </p>
+    }
+
+    @if (
+        isAwaitingUserSubscriptionPlanChoiceSignal() &&
+        !subscriptionPlanCatalogRequestFailedSignal()
+    ) {
+        <section class="subscription-wizard__plan-picker">
+            @if (invalidPlanFromQueryMessageSignal(); as invalidMessage) {
+                <p class="subscription-wizard__warn">{{ invalidMessage }}</p>
+            }
+            <p class="subscription-wizard__plan-picker-intro">
+                Escolha o plano pelo tamanho da sua equipe. Voce podera revisar os dados
+                antes de concluir.
+            </p>
+            <div class="subscription-wizard__plan-grid">
+                @for (plan of subscriptionPlanCatalogSignal(); track plan.id) {
+                    <p-card
+                        class="subscription-wizard__plan-card"
+                        [class.subscription-wizard__plan-card--highlight]="
+                            isRecommendedSubscriptionPlanForWizard(plan)
+                        "
+                        [header]="plan.planDisplayName"
+                        [subheader]="
+                            (plan.monthlyPriceInCents | currencyBrl) +
+                            ' / mes — ' +
+                            (plan.yearlyPriceInCents | currencyBrl) +
+                            ' / ano'
+                        "
+                    >
+                        @if (isRecommendedSubscriptionPlanForWizard(plan)) {
+                            <span class="subscription-wizard__plan-badge"
+                                >Recomendado</span
+                            >
+                        }
+                        <p class="subscription-wizard__plan-desc">
+                            {{ plan.planMarketingDescription }}
+                        </p>
+                        <p class="subscription-wizard__plan-meta">
+                            Ate
+                            <strong>{{ plan.maximumProfessionalsPerBarbershop }}</strong>
+                            {{
+                                plan.maximumProfessionalsPerBarbershop === 1
+                                    ? 'profissional'
+                                    : 'profissionais'
+                            }}
+                        </p>
+                        <p-button
+                            label="Continuar com este plano"
+                            (click)="userSelectedSubscriptionPlanForWizard(plan)"
+                        />
+                    </p-card>
+                }
+            </div>
+        </section>
+    }
+
+    @if (selectedPlanSignal(); as plan) {
+        <p class="subscription-wizard__plan">
+            Plano: {{ plan.planDisplayName }} — ate
+            {{ plan.maximumProfessionalsPerBarbershop }}
+            profissionais
+        </p>
+    }
+
+    @if (selectedPlanSignal()) {
+        <div class="subscription-wizard__steps">
+            <span
+                [class.subscription-wizard__step--active]="activeStepIndexSignal() === 0"
+                >1. Barbearia</span
+            >
+            <span
+                [class.subscription-wizard__step--active]="activeStepIndexSignal() === 1"
+                >2. Servicos</span
+            >
+            <span
+                [class.subscription-wizard__step--active]="activeStepIndexSignal() === 2"
+                >3. Equipe</span
+            >
+        </div>
+
+        @if (wizardProfileImageUploadErrorMessageSignal(); as wizardUploadError) {
+            <p class="subscription-wizard__upload-error">{{ wizardUploadError }}</p>
+        }
+
+        @if (activeStepIndexSignal() === 0) {
+            <div class="subscription-wizard__panel">
+                <label
+                    >Nome da barbearia<input
+                        pInputText
+                        [(ngModel)]="tradingNameInput"
+                        name="tradingName"
+                /></label>
+                <label
+                    >URL da imagem<input
+                        pInputText
+                        [(ngModel)]="profileImageUrlInput"
+                        name="profileImageUrl"
+                /></label>
+                <label class="subscription-wizard__file-field">
+                    Ou enviar foto (JPEG, PNG, WebP ou GIF, ate 3 MB)
+                    <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        (change)="submitBarbershopProfileImageUploadFromFileInput($event)"
+                        [disabled]="wizardProfileImageUploadInProgressSignal()"
+                    />
+                </label>
+                <label
+                    >WhatsApp<input
+                        pInputText
+                        [(ngModel)]="whatsappContactInput"
+                        name="whatsapp"
+                /></label>
+                <label
+                    >E-mail (opcional)<input
+                        pInputText
+                        [(ngModel)]="emailContactInput"
+                        name="email"
+                /></label>
+                <label
+                    >CNPJ (opcional)<input
+                        pInputText
+                        [(ngModel)]="taxIdentificationInput"
+                        name="cnpj"
+                /></label>
+                <label
+                    >Endereco completo<input
+                        pInputText
+                        [(ngModel)]="formattedAddressInput"
+                        name="address"
+                /></label>
+                <label
+                    >Latitude
+                    <p-inputNumber
+                        [(ngModel)]="latitudeInput"
+                        name="latitude"
+                        [useGrouping]="false"
+                    />
+                </label>
+                <label
+                    >Longitude
+                    <p-inputNumber
+                        [(ngModel)]="longitudeInput"
+                        name="longitude"
+                        [useGrouping]="false"
+                    />
+                </label>
+                <div class="subscription-wizard__checkbox-row">
+                    <p-checkbox
+                        [(ngModel)]="opensOnPublicHolidaysModel"
+                        name="opensHolidays"
+                        [binary]="true"
+                        inputId="opensHolidays"
+                    />
+                    <label for="opensHolidays">Abre em feriados</label>
+                </div>
+                <p class="subscription-wizard__note">
+                    Horarios padrao: seg-sex 09h-18h, sab 09h-14h, domingo fechado
+                    (ajustavel depois no painel).
+                </p>
+                <p-button label="Proximo" (click)="advanceStep()" />
+            </div>
+        }
+
+        @if (activeStepIndexSignal() === 1) {
+            <div class="subscription-wizard__panel">
+                @for (
+                    service of serviceDraftsSignal();
+                    track $index;
+                    let serviceIndex = $index
+                ) {
+                    <div class="subscription-wizard__repeat-block">
+                        <label
+                            >Servico<input
+                                pInputText
+                                [(ngModel)]="service.serviceName"
+                                [name]="'sn' + serviceIndex"
+                        /></label>
+                        <label
+                            >Preco (R$)
+                            <p-inputNumber
+                                [(ngModel)]="service.priceInReais"
+                                [name]="'pr' + serviceIndex"
+                                mode="decimal"
+                                [minFractionDigits]="2"
+                                [maxFractionDigits]="2"
+                            />
+                        </label>
+                        <label
+                            >Minutos
+                            <p-inputNumber
+                                [(ngModel)]="service.averageDurationInMinutes"
+                                [name]="'dur' + serviceIndex"
+                            />
+                        </label>
+                        <p-button
+                            label="Remover"
+                            severity="danger"
+                            (click)="removeServiceDraft(serviceIndex)"
+                        />
+                    </div>
+                }
+                <p-button label="Adicionar servico" (click)="addServiceDraft()" />
+                <div class="subscription-wizard__nav">
+                    <p-button
+                        label="Voltar"
+                        severity="secondary"
+                        (click)="goBackStep()"
+                    />
+                    <p-button label="Proximo" (click)="advanceStep()" />
+                </div>
+            </div>
+        }
+
+        @if (activeStepIndexSignal() === 2) {
+            <div class="subscription-wizard__panel">
+                @for (
+                    professional of professionalDraftsSignal();
+                    track $index;
+                    let professionalIndex = $index
+                ) {
+                    <div class="subscription-wizard__repeat-block">
+                        <h3>Profissional {{ professionalIndex + 1 }}</h3>
+                        <label
+                            >Nome<input
+                                pInputText
+                                [(ngModel)]="professional.fullName"
+                                [name]="'pfn' + professionalIndex"
+                        /></label>
+                        <label
+                            >URL da foto<input
+                                pInputText
+                                [(ngModel)]="professional.profileImageUrl"
+                                [name]="'pfi' + professionalIndex"
+                        /></label>
+                        <label class="subscription-wizard__file-field">
+                            Ou enviar foto do profissional
+                            <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                                (change)="
+                                    submitProfessionalProfileImageUploadFromFileInput(
+                                        professionalIndex,
+                                        $event
+                                    )
+                                "
+                                [disabled]="wizardProfileImageUploadInProgressSignal()"
+                            />
+                        </label>
+                        <label
+                            >Telefone<input
+                                pInputText
+                                [(ngModel)]="professional.phoneNumber"
+                                [name]="'pfp' + professionalIndex"
+                        /></label>
+                        <label
+                            >E-mail (opcional)<input
+                                pInputText
+                                [(ngModel)]="professional.emailAddress"
+                                [name]="'pfe' + professionalIndex"
+                        /></label>
+                        <div class="subscription-wizard__checkbox-row">
+                            <input
+                                type="radio"
+                                name="onlyAdmin"
+                                [checked]="professional.isBarbershopAdministrator"
+                                (change)="setOnlyAdministrator(professionalIndex)"
+                            />
+                            <span>Administrador da barbearia</span>
+                        </div>
+                        <p>Servicos executados:</p>
+                        @for (
+                            service of serviceDraftsSignal();
+                            track $index;
+                            let serviceIndex = $index
+                        ) {
+                            <label class="subscription-wizard__inline-check">
+                                <input
+                                    type="checkbox"
+                                    [checked]="
+                                        professional.serviceOfferingDraftIndexes.includes(
+                                            serviceIndex
+                                        )
+                                    "
+                                    (change)="
+                                        toggleProfessionalServiceIndex(
+                                            professionalIndex,
+                                            serviceIndex,
+                                            $any($event.target).checked
+                                        )
+                                    "
+                                />
+                                {{
+                                    service.serviceName || 'Servico ' + (serviceIndex + 1)
+                                }}
+                            </label>
+                        }
+                        <p-button
+                            label="Remover profissional"
+                            severity="danger"
+                            (click)="removeProfessionalDraft(professionalIndex)"
+                        />
+                    </div>
+                }
+                <p-button
+                    label="Adicionar profissional"
+                    (click)="addProfessionalDraft()"
+                />
+                <div class="subscription-wizard__nav">
+                    <p-button
+                        label="Voltar"
+                        severity="secondary"
+                        (click)="goBackStep()"
+                    />
+                    <p-button label="Concluir cadastro" (click)="submitWizard()" />
+                </div>
+            </div>
+        }
+    }
+
+    <p-dialog
+        header="Cadastro concluido"
+        [visible]="completionDialogVisibleSignal()"
+        (visibleChange)="completionDialogVisibleSignal.set($event)"
+        [modal]="true"
+        [style]="{ width: 'min(520px, 94vw)' }"
+    >
+        <p>
+            Guarde as senhas geradas. Voce podera redefini-las no painel como
+            administrador.
+        </p>
+        <ul>
+            @for (entry of generatedPasswordsSignal() | keyvalue; track entry.key) {
+                <li>
+                    <strong>{{ entry.key }}</strong
+                    >: {{ entry.value }}
+                </li>
+            }
+        </ul>
+        <a routerLink="/barbearia">
+            <p-button label="Ir para login da barbearia" />
+        </a>
+    </p-dialog>
+</div>

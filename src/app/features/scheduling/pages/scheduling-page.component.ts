@@ -1,8 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgxFadeComponent } from '@omnedia/ngx-fade';
-import { NgxShineBorderComponent } from '@omnedia/ngx-shine-border';
 import { Router } from '@angular/router';
 import { BarberInterface } from '../../../core/models/domain.models';
 import { ApiErrorResponseInterface } from '../../../core/models/api-response.interface';
@@ -32,8 +30,6 @@ interface DayOptionInterface {
     imports: [
         CommonModule,
         FormsModule,
-        NgxFadeComponent,
-        NgxShineBorderComponent,
         GoogleCalendarButtonComponent,
     ],
     template: `
@@ -41,8 +37,7 @@ interface DayOptionInterface {
             class="scheduling-shell"
             *ngIf="selectedService() as selectedServiceCatalogItem"
         >
-            <om-fade direction="up">
-                <article class="scheduling-panel">
+            <article class="scheduling-panel">
                     <h2 class="service-title">
                         {{ selectedServiceCatalogItem.serviceName }}
                     </h2>
@@ -77,7 +72,7 @@ interface DayOptionInterface {
                     </h3>
 
                     <div class="step-content-shell" *ngIf="currentStepIndex() < 5">
-                        <om-shine-border *ngIf="currentStepIndex() === 0">
+                        <ng-container *ngIf="currentStepIndex() === 0">
                             <div class="section-shell">
                                 <div class="day-grid">
                                     <button
@@ -92,9 +87,9 @@ interface DayOptionInterface {
                                     </button>
                                 </div>
                             </div>
-                        </om-shine-border>
+                        </ng-container>
 
-                        <om-shine-border *ngIf="currentStepIndex() === 1">
+                        <ng-container *ngIf="currentStepIndex() === 1">
                             <div class="section-shell">
                                 <div
                                     class="time-grid"
@@ -113,9 +108,9 @@ interface DayOptionInterface {
                                     </button>
                                 </div>
                             </div>
-                        </om-shine-border>
+                        </ng-container>
 
-                        <om-shine-border *ngIf="currentStepIndex() === 2">
+                        <ng-container *ngIf="currentStepIndex() === 2">
                             <div class="section-shell">
                                 <div class="professional-grid">
                                     <button
@@ -140,7 +135,7 @@ interface DayOptionInterface {
                                     </button>
                                 </div>
                             </div>
-                        </om-shine-border>
+                        </ng-container>
 
                         <ng-template #noTimeSlotsTemplate>
                             <p class="helper-message">
@@ -148,7 +143,7 @@ interface DayOptionInterface {
                             </p>
                         </ng-template>
 
-                        <om-shine-border *ngIf="currentStepIndex() === 3">
+                        <ng-container *ngIf="currentStepIndex() === 3">
                             <section class="form-panel">
                                 <label>
                                     Nome e sobrenome:
@@ -169,9 +164,9 @@ interface DayOptionInterface {
                                     />
                                 </label>
                             </section>
-                        </om-shine-border>
+                        </ng-container>
 
-                        <om-shine-border
+                        <ng-container
                             *ngIf="currentStepIndex() === 4 && selectedTimeSlot() as selectedTimeSlotItem"
                         >
                             <section class="summary-panel">
@@ -190,7 +185,7 @@ interface DayOptionInterface {
                                     AGENDAR
                                 </button>
                             </section>
-                        </om-shine-border>
+                        </ng-container>
                     </div>
 
                     <div class="navigation-controls" *ngIf="currentStepIndex() < 5">
@@ -213,34 +208,29 @@ interface DayOptionInterface {
                         </button>
                     </div>
 
-                    <om-fade
-                        direction="up"
+                    <section
+                        class="confirmation-panel"
                         *ngIf="currentStepIndex() === 5 && confirmedAppointmentTimeSlot() as confirmedTimeSlot"
                     >
-                        <om-shine-border>
-                            <section class="confirmation-panel">
-                                <h3>Agendamento confirmado</h3>
-                                <p class="confirmation-date-time">
-                                    {{ formatDateTimeLabel(confirmedTimeSlot.startsAt) }}
-                                </p>
-                                <app-google-calendar-button
-                                    [serviceName]="selectedServiceCatalogItem.serviceName"
-                                    [barberName]="selectedBarberName()"
-                                    [appointmentStartDateTimeIsoString]="confirmedTimeSlot.startsAt"
-                                    [appointmentEndDateTimeIsoString]="confirmedTimeSlot.endsAt"
-                                />
-                                <button
-                                    type="button"
-                                    class="navigation-button navigation-button-primary"
-                                    (click)="restartSchedulingFlow()"
-                                >
-                                    Novo agendamento
-                                </button>
-                            </section>
-                        </om-shine-border>
-                    </om-fade>
-                </article>
-            </om-fade>
+                        <h3>Agendamento confirmado</h3>
+                        <p class="confirmation-date-time">
+                            {{ formatDateTimeLabel(confirmedTimeSlot.startsAt) }}
+                        </p>
+                        <app-google-calendar-button
+                            [serviceName]="selectedServiceCatalogItem.serviceName"
+                            [barberName]="selectedBarberName()"
+                            [appointmentStartDateTimeIsoString]="confirmedTimeSlot.startsAt"
+                            [appointmentEndDateTimeIsoString]="confirmedTimeSlot.endsAt"
+                        />
+                        <button
+                            type="button"
+                            class="navigation-button navigation-button-primary"
+                            (click)="restartSchedulingFlow()"
+                        >
+                            Novo agendamento
+                        </button>
+                    </section>
+            </article>
         </section>
     `,
     styles: `
@@ -252,13 +242,9 @@ interface DayOptionInterface {
             min-height: calc(100vh - 220px);
         }
 
-        .scheduling-shell > om-fade {
-            width: min(560px, 100%);
-            display: block;
-        }
-
         .scheduling-panel {
             width: 100%;
+            max-width: 560px;
             border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 18px;
             padding: 18px;

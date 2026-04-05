@@ -1,0 +1,362 @@
+<div class="barbershop-panel">
+    <header class="barbershop-panel__header">
+        <div>
+            <h1>Painel da barbearia</h1>
+            <p class="barbershop-panel__user">
+                {{ barbershopProfessionalSessionService.professionalProfile()?.fullName }}
+                @if (isAdministrator()) {
+                    <span>(Administrador)</span>
+                }
+            </p>
+        </div>
+        <div class="barbershop-panel__header-actions">
+            <p-button label="Sair" severity="secondary" (click)="logout()" />
+        </div>
+    </header>
+
+    @if (panelProfileImageUploadErrorMessageSignal(); as panelImageUploadError) {
+        <p class="barbershop-panel__upload-error">{{ panelImageUploadError }}</p>
+    }
+
+    <nav class="barbershop-panel__nav">
+        <p-button
+            label="Visao geral"
+            [outlined]="activeSectionSignal() !== 'dashboard'"
+            (click)="selectSection('dashboard')"
+        />
+        @if (isAdministrator()) {
+            <p-button
+                label="Servicos"
+                [outlined]="activeSectionSignal() !== 'services'"
+                (click)="selectSection('services')"
+            />
+            <p-button
+                label="Profissionais"
+                [outlined]="activeSectionSignal() !== 'professionals'"
+                (click)="selectSection('professionals')"
+            />
+            <p-button
+                label="Barbearia"
+                [outlined]="activeSectionSignal() !== 'tenant'"
+                (click)="selectSection('tenant')"
+            />
+        }
+        <p-button
+            label="Assinatura"
+            [outlined]="activeSectionSignal() !== 'subscription'"
+            (click)="selectSection('subscription')"
+        />
+        <p-button
+            label="Meu perfil"
+            [outlined]="activeSectionSignal() !== 'profile'"
+            (click)="selectSection('profile')"
+        />
+    </nav>
+
+    @if (activeSectionSignal() === 'dashboard') {
+        <section class="barbershop-panel__section">
+            @if (dashboardSummarySignal(); as summary) {
+                <p>Unidade: {{ summary.tradingName }}</p>
+                <p>Status: {{ summary.subscriptionLifecycleStatus }}</p>
+                <p>Servicos cadastrados: {{ summary.serviceOfferingCount }}</p>
+                <p>Profissionais: {{ summary.professionalCount }}</p>
+            }
+        </section>
+    }
+
+    @if (activeSectionSignal() === 'services' && isAdministrator()) {
+        <section class="barbershop-panel__section">
+            <h2>Novo servico</h2>
+            <div class="barbershop-panel__form-row">
+                <input
+                    pInputText
+                    placeholder="Nome"
+                    [(ngModel)]="newServiceName"
+                    name="newServiceName"
+                />
+                <p-inputNumber
+                    [(ngModel)]="newServicePriceReais"
+                    name="newServicePrice"
+                    mode="decimal"
+                    placeholder="Preco R$"
+                />
+                <p-inputNumber
+                    [(ngModel)]="newServiceMinutes"
+                    name="newServiceMin"
+                    placeholder="Min"
+                />
+                <p-button label="Adicionar" (click)="createService()" />
+            </div>
+            <h2>Lista</h2>
+            <table class="barbershop-panel__table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Preco</th>
+                        <th>Min</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (service of serviceOfferingsSignal(); track service.id) {
+                        <tr>
+                            <td>{{ service.serviceName }}</td>
+                            <td>{{ service.priceInCents / 100 | number: '1.2-2' }}</td>
+                            <td>{{ service.averageDurationInMinutes }}</td>
+                            <td>
+                                <p-button
+                                    label="Excluir"
+                                    severity="danger"
+                                    (click)="deleteService(service.id)"
+                                />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+    }
+
+    @if (activeSectionSignal() === 'professionals' && isAdministrator()) {
+        <section class="barbershop-panel__section">
+            <h2>Novo profissional</h2>
+            <div class="barbershop-panel__stack">
+                <input
+                    pInputText
+                    placeholder="Nome"
+                    [(ngModel)]="newProfessionalName"
+                    name="npn"
+                />
+                <input
+                    pInputText
+                    placeholder="URL imagem"
+                    [(ngModel)]="newProfessionalImageUrl"
+                    name="npi"
+                />
+                <label class="barbershop-panel__file-field">
+                    Enviar foto
+                    <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        (change)="
+                            submitNewProfessionalProfileImageUploadFromFileInput($event)
+                        "
+                        [disabled]="panelProfileImageUploadInProgressSignal()"
+                    />
+                </label>
+                <input
+                    pInputText
+                    placeholder="Telefone"
+                    [(ngModel)]="newProfessionalPhone"
+                    name="npp"
+                />
+                <input
+                    pInputText
+                    placeholder="E-mail opcional"
+                    [(ngModel)]="newProfessionalEmail"
+                    name="npe"
+                />
+                <label class="barbershop-panel__inline">
+                    <input
+                        type="checkbox"
+                        [(ngModel)]="newProfessionalIsAdministrator"
+                        name="npa"
+                    />
+                    Definir como administrador principal
+                </label>
+                <p>Servicos:</p>
+                @for (service of serviceOfferingsSignal(); track service.id) {
+                    <label class="barbershop-panel__inline">
+                        <input
+                            type="checkbox"
+                            [checked]="newProfessionalServiceIds.includes(service.id)"
+                            (change)="
+                                toggleNewProfessionalService(
+                                    service.id,
+                                    $any($event.target).checked
+                                )
+                            "
+                        />
+                        {{ service.serviceName }}
+                    </label>
+                }
+                <p-button label="Criar profissional" (click)="createProfessional()" />
+            </div>
+            <h2>Equipe</h2>
+            <table class="barbershop-panel__table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Admin</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (
+                        professional of professionalsSignal();
+                        track professional.professionalId
+                    ) {
+                        <tr>
+                            <td>{{ professional.fullName }}</td>
+                            <td>
+                                {{
+                                    professional.isBarbershopAdministrator ? 'Sim' : 'Nao'
+                                }}
+                            </td>
+                            <td>
+                                <p-button
+                                    label="Nova senha"
+                                    (click)="
+                                        regeneratePassword(professional.professionalId)
+                                    "
+                                />
+                                @if (!professional.isBarbershopAdministrator) {
+                                    <p-button
+                                        label="Tornar admin"
+                                        severity="secondary"
+                                        (click)="
+                                            setPrimaryAdministrator(
+                                                professional.professionalId
+                                            )
+                                        "
+                                    />
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </section>
+    }
+
+    @if (activeSectionSignal() === 'tenant' && isAdministrator()) {
+        <section class="barbershop-panel__section barbershop-panel__stack">
+            <label
+                >Nome<input pInputText [(ngModel)]="tenantDraftTradingName" name="ttn"
+            /></label>
+            <label
+                >Imagem (URL)<input
+                    pInputText
+                    [(ngModel)]="tenantDraftProfileImageUrl"
+                    name="tti"
+            /></label>
+            <label class="barbershop-panel__file-field">
+                Enviar foto da barbearia
+                <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    (change)="submitTenantProfileImageUploadFromFileInput($event)"
+                    [disabled]="panelProfileImageUploadInProgressSignal()"
+                />
+            </label>
+            <label
+                >WhatsApp<input
+                    pInputText
+                    [(ngModel)]="tenantDraftWhatsappContact"
+                    name="ttw"
+            /></label>
+            <label
+                >E-mail<input pInputText [(ngModel)]="tenantDraftEmailContact" name="tte"
+            /></label>
+            <label
+                >CNPJ<input
+                    pInputText
+                    [(ngModel)]="tenantDraftTaxIdentificationNumber"
+                    name="ttc"
+            /></label>
+            <label
+                >Endereco<input
+                    pInputText
+                    [(ngModel)]="tenantDraftFormattedAddress"
+                    name="tta"
+            /></label>
+            <label
+                >Latitude<p-inputNumber
+                    [(ngModel)]="tenantDraftLatitude"
+                    name="ttl"
+                    [useGrouping]="false"
+            /></label>
+            <label
+                >Longitude<p-inputNumber
+                    [(ngModel)]="tenantDraftLongitude"
+                    name="ttg"
+                    [useGrouping]="false"
+            /></label>
+            <label
+                >Fuso<input
+                    pInputText
+                    [(ngModel)]="tenantDraftTimezoneIdentifier"
+                    name="ttz"
+            /></label>
+            <label class="barbershop-panel__inline">
+                <input
+                    type="checkbox"
+                    [(ngModel)]="tenantDraftOpensOnPublicHolidays"
+                    name="tto"
+                />
+                Abre em feriados
+            </label>
+            <label
+                >Horarios (JSON por dia 0-6)
+                <textarea
+                    rows="8"
+                    class="barbershop-panel__textarea"
+                    [(ngModel)]="tenantDraftOpeningHoursJson"
+                    name="ttj"
+                ></textarea>
+            </label>
+            <p-button label="Salvar barbearia" (click)="saveTenantDraft()" />
+        </section>
+    }
+
+    @if (activeSectionSignal() === 'subscription') {
+        <section class="barbershop-panel__section">
+            @if (subscriptionSummarySignal(); as sub) {
+                <p>Plano: {{ sub.planDisplayName }}</p>
+                <p>Status: {{ sub.subscriptionLifecycleStatus }}</p>
+                <p>Faturas: em breve com gateway de pagamento.</p>
+            }
+        </section>
+    }
+
+    @if (activeSectionSignal() === 'profile') {
+        <section class="barbershop-panel__section barbershop-panel__stack">
+            <label
+                >Nome<input pInputText [(ngModel)]="profileFullName" name="pfn"
+            /></label>
+            <label
+                >URL imagem perfil<input
+                    pInputText
+                    [(ngModel)]="profileImageUrl"
+                    name="pfi"
+            /></label>
+            <label class="barbershop-panel__file-field">
+                Enviar foto do perfil
+                <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    (change)="
+                        submitOwnProfessionalProfileImageUploadFromFileInput($event)
+                    "
+                    [disabled]="panelProfileImageUploadInProgressSignal()"
+                />
+            </label>
+            <label
+                >Telefone<input pInputText [(ngModel)]="profilePhone" name="pfp"
+            /></label>
+            <label
+                >E-mail<input pInputText [(ngModel)]="profileEmail" name="pfe"
+            /></label>
+            <p-button label="Salvar meu perfil" (click)="saveOwnProfile()" />
+        </section>
+    }
+
+    <p-dialog
+        header="Senha provisoria"
+        [visible]="passwordDialogVisibleSignal()"
+        (visibleChange)="passwordDialogVisibleSignal.set($event)"
+        [modal]="true"
+    >
+        <p class="barbershop-panel__password">{{ passwordRevealSignal() }}</p>
+    </p-dialog>
+</div>

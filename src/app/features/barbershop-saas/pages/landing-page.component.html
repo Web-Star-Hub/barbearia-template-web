@@ -1,0 +1,328 @@
+<div class="landing">
+    <header class="landing__topbar">
+        <div class="landing__topbar-inner">
+            <a routerLink="/" class="landing__brand">BarberSaaS</a>
+            <nav class="landing__nav">
+                <a routerLink="/cliente" class="landing__nav-link">Sou cliente</a>
+                <a routerLink="/barbearia" class="landing__nav-link">Area da barbearia</a>
+                <a routerLink="/" fragment="planos" class="landing__nav-link">Planos</a>
+                <a routerLink="/" fragment="como-funciona" class="landing__nav-link"
+                    >Como funciona</a
+                >
+            </nav>
+            <a [routerLink]="buildCadastroRouteWithoutPlan()" class="landing__nav-cta">
+                <p-button label="Assinar agora" />
+            </a>
+        </div>
+    </header>
+
+    <section class="landing__hero">
+        <div class="landing__hero-inner">
+            <div class="landing__hero-copy">
+                <span class="landing__eyebrow">Plataforma para barbearias modernas</span>
+                <h1 class="landing__hero-title">
+                    Venda mais, organize sua equipe e seja encontrado por clientes na sua
+                    regiao
+                </h1>
+                <p class="landing__hero-lead">
+                    Tudo em um so lugar: cadastro da unidade, servicos, barbeiros com
+                    acesso controlado, presenca digital e listagem geografica — inspirado
+                    em solucoes como AppBarber, com a sua marca e o seu fluxo.
+                </p>
+                <div class="landing__hero-actions">
+                    <a routerLink="/cliente" class="landing__hero-cta">
+                        <p-button label="Quero encontrar uma barbearia" />
+                    </a>
+                    <a routerLink="/barbearia" class="landing__hero-cta">
+                        <p-button label="Ja tenho barbearia" severity="secondary" />
+                    </a>
+                </div>
+                <ul class="landing__hero-bullets">
+                    <li>Sem complicacao para o cliente final</li>
+                    <li>Trial para testar com a sua equipe</li>
+                    <li>Painel responsivo para uso no celular</li>
+                </ul>
+            </div>
+            <div class="landing__hero-panel" aria-hidden="true">
+                <div class="landing__mock-dashboard">
+                    <div class="landing__mock-header"></div>
+                    <div class="landing__mock-rows">
+                        <div class="landing__mock-row"></div>
+                        <div class="landing__mock-row landing__mock-row--short"></div>
+                        <div class="landing__mock-row"></div>
+                    </div>
+                    <div class="landing__mock-cards">
+                        <div class="landing__mock-card"></div>
+                        <div class="landing__mock-card"></div>
+                        <div class="landing__mock-card"></div>
+                    </div>
+                </div>
+                <p class="landing__mock-caption">
+                    Previa do painel: servicos, equipe e status
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing__metrics">
+        <div class="landing__metrics-inner">
+            <div class="landing__metric">
+                <strong class="landing__metric-value">100%</strong>
+                <span class="landing__metric-label">Focado em barbearias</span>
+            </div>
+            <div class="landing__metric">
+                <strong class="landing__metric-value">Geo</strong>
+                <span class="landing__metric-label">Clientes veem unidades proximas</span>
+            </div>
+            <div class="landing__metric">
+                <strong class="landing__metric-value">RBAC</strong>
+                <span class="landing__metric-label">Admin e barbeiro com permissoes</span>
+            </div>
+            <div class="landing__metric">
+                <strong class="landing__metric-value">Trial</strong>
+                <span class="landing__metric-label"
+                    >Comece sem cartao na fase inicial</span
+                >
+            </div>
+        </div>
+    </section>
+
+    <section class="landing__features" id="recursos">
+        <div class="landing__section-inner">
+            <h2 class="landing__section-title">Por que escolher nosso software</h2>
+            <p class="landing__section-intro">
+                Ferramentas pensadas para o dia a dia da barbearia: rapido para cadastrar,
+                facil para o time usar e claro para o cliente encontrar voce.
+            </p>
+            <div class="landing__feature-grid">
+                <article class="landing__feature-card">
+                    <h3>Visibilidade local</h3>
+                    <p>
+                        Sua barbearia aparece para quem busca na regiao, com status aberto
+                        ou fechado e lista de servicos antes mesmo do contato.
+                    </p>
+                </article>
+                <article class="landing__feature-card">
+                    <h3>Gestao de equipe</h3>
+                    <p>
+                        Cadastre barbeiros, defina quem e administrador, vincule servicos
+                        e gere senhas com seguranca — tudo pelo painel.
+                    </p>
+                </article>
+                <article class="landing__feature-card">
+                    <h3>Servicos e precos</h3>
+                    <p>
+                        Monte o catalogo com nome, valor e tempo medio de execucao. Altere
+                        quando precisar, sem depender de desenvolvedor.
+                    </p>
+                </article>
+                <article class="landing__feature-card">
+                    <h3>Contato sem friccao</h3>
+                    <p>
+                        O cliente informa nome e WhatsApp uma vez; voce recebe o lead e
+                        libera o contato da unidade com privacidade.
+                    </p>
+                </article>
+                <article class="landing__feature-card">
+                    <h3>Assinatura clara</h3>
+                    <p>
+                        Planos por tamanho da equipe, com valores mensais e anuais
+                        transparentes. Cobranca via gateway entra na proxima etapa do
+                        produto.
+                    </p>
+                </article>
+                <article class="landing__feature-card">
+                    <h3>Mobile first</h3>
+                    <p>
+                        Interfaces pensadas para celular, onde barbeiros e clientes passam
+                        a maior parte do tempo.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing__steps" id="como-funciona">
+        <div class="landing__section-inner">
+            <h2 class="landing__section-title">Como funciona</h2>
+            <ol class="landing__steps-list">
+                <li class="landing__step">
+                    <span class="landing__step-num">1</span>
+                    <div>
+                        <h3>Escolha o plano</h3>
+                        <p>
+                            Selecione o pacote pelo numero de profissionais e inicie o
+                            cadastro guiado.
+                        </p>
+                    </div>
+                </li>
+                <li class="landing__step">
+                    <span class="landing__step-num">2</span>
+                    <div>
+                        <h3>Cadastre a barbearia</h3>
+                        <p>
+                            Dados da unidade, endereco, horarios, WhatsApp e se abre em
+                            feriados — com coordenadas para aparecer na busca.
+                        </p>
+                    </div>
+                </li>
+                <li class="landing__step">
+                    <span class="landing__step-num">3</span>
+                    <div>
+                        <h3>Servicos e equipe</h3>
+                        <p>
+                            Inclua servicos, depois barbeiros com senhas geradas e um
+                            administrador.
+                        </p>
+                    </div>
+                </li>
+                <li class="landing__step">
+                    <span class="landing__step-num">4</span>
+                    <div>
+                        <h3>Entre no painel</h3>
+                        <p>
+                            Acesse com login por barbearia, gerencie o dia a dia e
+                            acompanhe a assinatura.
+                        </p>
+                    </div>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <section class="landing__pricing" id="planos">
+        <div class="landing__section-inner">
+            <h2 class="landing__section-title">
+                Planos que acompanham o tamanho da sua equipe
+            </h2>
+            <p class="landing__section-intro">
+                Precos mensais exibidos abaixo; tambem oferecemos valor anual com desconto
+                quando disponivel na API. Essencial para 1 profissional, Equipe para 2 a
+                3, Crescimento para 4 a 6, e Negocios para ate 10.
+            </p>
+
+            @if (loadErrorSignal()) {
+                <p class="landing__plans-error">{{ loadErrorSignal() }}</p>
+                <p class="landing__plans-fallback">
+                    Acesse
+                    <a routerLink="/cadastro">/cadastro</a>
+                    para escolher o plano assim que a API estiver disponivel, ou rode o
+                    seed no backend.
+                </p>
+            }
+
+            @if (
+                plansRequestFinishedSignal() &&
+                subscriptionPlansSignal().length === 0 &&
+                !loadErrorSignal()
+            ) {
+                <p class="landing__plans-error">
+                    Nenhum plano cadastrado. Execute o seed da API ou cadastre planos no
+                    banco.
+                </p>
+            }
+
+            <div class="landing__plan-grid">
+                @for (plan of subscriptionPlansSignal(); track plan.id) {
+                    <p-card
+                        class="landing__plan-card"
+                        [class.landing__plan-card--highlight]="isRecommendedPlan(plan)"
+                        [header]="plan.planDisplayName"
+                        [subheader]="
+                            (plan.monthlyPriceInCents | currencyBrl) +
+                            ' / mes — ' +
+                            (plan.yearlyPriceInCents | currencyBrl) +
+                            ' / ano'
+                        "
+                    >
+                        @if (isRecommendedPlan(plan)) {
+                            <span class="landing__plan-badge">Mais equilibrado</span>
+                        }
+                        <p class="landing__plan-desc">
+                            {{ plan.planMarketingDescription }}
+                        </p>
+                        <p class="landing__plan-meta">
+                            Ate
+                            <strong>{{ plan.maximumProfessionalsPerBarbershop }}</strong>
+                            {{
+                                plan.maximumProfessionalsPerBarbershop === 1
+                                    ? 'profissional'
+                                    : 'profissionais'
+                            }}
+                        </p>
+                        <ul class="landing__plan-features">
+                            @for (feature of plan.includedFeatureLabels; track feature) {
+                                <li>{{ feature }}</li>
+                            }
+                        </ul>
+                        <a
+                            [routerLink]="buildSubscriptionWizardRoute(plan.id)"
+                            class="landing__plan-cta"
+                        >
+                            <p-button
+                                [label]="
+                                    isRecommendedPlan(plan)
+                                        ? 'Assinar plano recomendado'
+                                        : 'Assinar este plano'
+                                "
+                                [styleClass]="'landing__plan-button-inner'"
+                            />
+                        </a>
+                    </p-card>
+                }
+            </div>
+
+            <div class="landing__pricing-foot">
+                <p>
+                    Precisa de mais de 10 profissionais ou varias unidades?
+                    <a href="mailto:comercial&#64;exemplo.com">Fale com comercial</a>
+                    para proposta sob medida.
+                </p>
+                <a
+                    [routerLink]="buildCadastroRouteWithoutPlan()"
+                    class="landing__pricing-alt"
+                >
+                    <p-button
+                        label="Ver fluxo completo de cadastro"
+                        severity="secondary"
+                    />
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing__cta-band">
+        <div class="landing__cta-inner">
+            <div>
+                <h2 class="landing__cta-title">
+                    Pronto para profissionalizar sua barbearia?
+                </h2>
+                <p class="landing__cta-text">
+                    Comece pelo plano certo, convide sua equipe e apareca para novos
+                    clientes na sua cidade.
+                </p>
+            </div>
+            <a [routerLink]="buildCadastroRouteWithoutPlan()" class="landing__cta-button">
+                <p-button label="Comecar agora" />
+            </a>
+        </div>
+    </section>
+
+    <footer class="landing__footer">
+        <div class="landing__footer-inner">
+            <div class="landing__footer-brand">
+                <strong>BarberSaaS</strong>
+                <span>Software para barbearias</span>
+            </div>
+            <div class="landing__footer-links">
+                <a routerLink="/cliente">Para clientes</a>
+                <a routerLink="/barbearia">Para barbearias</a>
+                <a routerLink="/" fragment="planos">Planos</a>
+            </div>
+            <div class="landing__footer-meta">
+                <span>Contato: comercial&#64;exemplo.com</span>
+                <span>Politica de privacidade e termos em breve</span>
+            </div>
+        </div>
+    </footer>
+</div>
