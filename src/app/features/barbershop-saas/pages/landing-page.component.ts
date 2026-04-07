@@ -47,6 +47,6 @@ export class LandingPageComponent implements OnInit {
     }
 
     protected isRecommendedPlan(plan: SubscriptionPlanDefinitionInterface): boolean {
-        return plan.planDisplayName === 'Equipe';
+        return plan.id === 'professional';
     }
 }

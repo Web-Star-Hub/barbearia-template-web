@@ -16,6 +16,7 @@ export interface BarbershopDiscoveryCardInterface {
     formattedAddress: string;
     isOpenNow: boolean;
     opensOnPublicHolidays: boolean;
+    whatsappContact?: string;
 }
 
 export interface BarbershopLoginOptionInterface {

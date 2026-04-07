@@ -13,7 +13,7 @@ import {
     providedIn: 'root',
 })
 export class BarbershopProfessionalPanelHttpService {
-    private readonly apiRootUrl = `${environment.apiBaseUrl}/api`;
+    private readonly apiRootUrl = environment.apiBaseUrl;
 
     constructor(private readonly httpClient: HttpClient) {}
 
@@ -33,7 +33,7 @@ export class BarbershopProfessionalPanelHttpService {
                     serviceOfferingCount: number;
                     professionalCount: number;
                 } | null>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/dashboard-summary`)
+            >(`${this.apiRootUrl}/barbershop-panel/dashboard-summary`)
             .pipe(map((response) => response.data));
     }
 
@@ -63,7 +63,7 @@ export class BarbershopProfessionalPanelHttpService {
                         description: string;
                     }>;
                 } | null>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/subscription-summary`)
+            >(`${this.apiRootUrl}/barbershop-panel/subscription-summary`)
             .pipe(map((response) => response.data));
     }
 
@@ -71,7 +71,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .get<
                 ApiSuccessResponseInterface<BarbershopTenantProfileInterface | null>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/barbershop-tenant-profile`)
+            >(`${this.apiRootUrl}/barbershop-panel/barbershop-tenant-profile`)
             .pipe(map((response) => response.data));
     }
 
@@ -79,7 +79,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .get<
                 ApiSuccessResponseInterface<BarbershopServiceOfferingInterface[]>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/service-offerings`)
+            >(`${this.apiRootUrl}/barbershop-panel/service-offerings`)
             .pipe(map((response) => response.data));
     }
 
@@ -91,7 +91,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .post<
                 ApiSuccessResponseInterface<BarbershopServiceOfferingInterface>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/service-offerings`, payload)
+            >(`${this.apiRootUrl}/barbershop-panel/service-offerings`, payload)
             .pipe(map((response) => response.data));
     }
 
@@ -106,7 +106,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .patch<
                 ApiSuccessResponseInterface<BarbershopServiceOfferingInterface>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/service-offerings/${serviceOfferingId}`, payload)
+            >(`${this.apiRootUrl}/barbershop-panel/service-offerings/${serviceOfferingId}`, payload)
             .pipe(map((response) => response.data));
     }
 
@@ -116,7 +116,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .delete<
                 ApiSuccessResponseInterface<{ deleted: boolean }>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/service-offerings/${serviceOfferingId}`)
+            >(`${this.apiRootUrl}/barbershop-panel/service-offerings/${serviceOfferingId}`)
             .pipe(map((response) => response.data));
     }
 
@@ -124,7 +124,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .get<
                 ApiSuccessResponseInterface<BarbershopProfessionalListItemInterface[]>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/professionals`)
+            >(`${this.apiRootUrl}/barbershop-panel/professionals`)
             .pipe(map((response) => response.data));
     }
 
@@ -142,7 +142,7 @@ export class BarbershopProfessionalPanelHttpService {
                     professionalId: string;
                     generatedPlainPassword: string;
                 }>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/professionals`, payload)
+            >(`${this.apiRootUrl}/barbershop-panel/professionals`, payload)
             .pipe(map((response) => response.data));
     }
 
@@ -159,7 +159,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .patch<
                 ApiSuccessResponseInterface<BarbershopProfessionalListItemInterface>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/professionals/${professionalId}`, payload)
+            >(`${this.apiRootUrl}/barbershop-panel/professionals/${professionalId}`, payload)
             .pipe(map((response) => response.data));
     }
 
@@ -169,7 +169,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .post<
                 ApiSuccessResponseInterface<{ newPlainPassword: string }>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/professionals/${professionalId}/regenerate-password`, {})
+            >(`${this.apiRootUrl}/barbershop-panel/professionals/${professionalId}/regenerate-password`, {})
             .pipe(map((response) => response.data));
     }
 
@@ -194,7 +194,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .patch<
                 ApiSuccessResponseInterface<BarbershopTenantProfileInterface>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/barbershop-tenant-profile`, payload)
+            >(`${this.apiRootUrl}/barbershop-panel/barbershop-tenant-profile`, payload)
             .pipe(map((response) => response.data));
     }
 
@@ -204,7 +204,7 @@ export class BarbershopProfessionalPanelHttpService {
         return this.httpClient
             .post<
                 ApiSuccessResponseInterface<{ success: boolean }>
-            >(`${this.apiRootUrl}/saas/barbershop-panel/primary-administrator`, { newAdministratorProfessionalId })
+            >(`${this.apiRootUrl}/barbershop-panel/primary-administrator`, { newAdministratorProfessionalId })
             .pipe(map((response) => response.data));
     }
 }

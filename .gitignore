@@ -50,3 +50,7 @@ bun.lock
 bun.lock.json
 bun.lock.yaml
 bun.lock.json
+
+# Environment variables
+.env
+.env.*

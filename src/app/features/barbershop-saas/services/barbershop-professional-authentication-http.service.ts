@@ -3,31 +3,37 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiSuccessResponseInterface } from '../../../core/models/api-response.interface';
-import { BarbershopProfessionalProfileInterface } from '../../../core/models/barbershop-saas.models';
+
+export type BarbershopProfessionalLoginResponse = {
+    accessToken: string;
+    tokenType: string;
+    expiresIn: string;
+    authenticatedUser: {
+        userAccountIdentifier: string;
+        email: string;
+        fullName: string;
+        barbershopIdentifier: string;
+        role: string;
+    };
+};
 
 @Injectable({
     providedIn: 'root',
 })
 export class BarbershopProfessionalAuthenticationHttpService {
-    private readonly apiRootUrl = `${environment.apiBaseUrl}/api`;
+    private readonly apiRootUrl = environment.apiBaseUrl;
 
     constructor(private readonly httpClient: HttpClient) {}
 
-    public loginBarbershopProfessional(payload: {
-        barbershopTenantId: string;
-        loginIdentifier: string;
+    public loginBarbershopProfessionalWithEmailAndPassword(payload: {
+        email: string;
         password: string;
-    }): Observable<{
-        accessToken: string;
-        professionalProfile: BarbershopProfessionalProfileInterface;
-    }> {
+    }): Observable<BarbershopProfessionalLoginResponse> {
         return this.httpClient
-            .post<
-                ApiSuccessResponseInterface<{
-                    accessToken: string;
-                    professionalProfile: BarbershopProfessionalProfileInterface;
-                }>
-            >(`${this.apiRootUrl}/saas/professional-authentication/login`, payload)
+            .post<ApiSuccessResponseInterface<BarbershopProfessionalLoginResponse>>(
+                `${this.apiRootUrl}/authentication/login`,
+                payload
+            )
             .pipe(map((response) => response.data));
     }
 }

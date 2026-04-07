@@ -8,7 +8,6 @@ import { InputText } from 'primeng/inputtext';
 import { Tag } from 'primeng/tag';
 import { FormsModule } from '@angular/forms';
 import { BarbershopSaasPublicHttpService } from '../services/barbershop-saas-public-http.service';
-import { AnonymousClientLeadSessionService } from '../../../core/services/anonymous-client-lead-session.service';
 import { BarbershopDiscoveryCardInterface } from '../../../core/models/barbershop-saas.models';
 import { BarbershopServiceOfferingInterface } from '../../../core/models/barbershop-saas.models';
 
@@ -25,71 +24,59 @@ export class ClientDiscoveryPageComponent implements OnInit {
     private readonly barbershopSaasPublicHttpService = inject(
         BarbershopSaasPublicHttpService
     );
-    private readonly anonymousClientLeadSessionService = inject(
-        AnonymousClientLeadSessionService
-    );
 
     protected readonly barbershopsSignal = signal<BarbershopDiscoveryCardInterface[]>([]);
     protected readonly nearbyDiscoveryRequestFinishedSignal = signal(false);
+    protected readonly nearbyDiscoveryLoadingSignal = signal(true);
+    protected readonly nearbyDiscoveryErrorMessageSignal = signal<string | null>(null);
     protected readonly locationMessageSignal = signal<string>(
-        'Preparando a busca por barbearias...'
+        'Obtendo localizacao para buscar barbearias...'
     );
     protected readonly searchQuerySignal = signal('');
     protected readonly latitudeSignal = signal<number | null>(null);
     protected readonly longitudeSignal = signal<number | null>(null);
 
-    protected readonly contactDialogVisibleSignal = signal(false);
-    protected readonly selectedBarbershopIdSignal = signal<string | null>(null);
-    protected readonly contactContextBarbershopIdSignal = signal<string | null>(null);
-    protected readonly clientDisplayNameInputSignal = signal('');
-    protected readonly clientWhatsappInputSignal = signal('');
-    protected readonly revealedWhatsappSignal = signal<string | null>(null);
-
     protected readonly servicesDialogVisibleSignal = signal(false);
     protected readonly servicesForSelectedSignal = signal<
         BarbershopServiceOfferingInterface[]
     >([]);
+    protected readonly servicesDialogLoadingSignal = signal(false);
+    protected readonly servicesDialogErrorMessageSignal = signal<string | null>(null);
 
     public ngOnInit(): void {
-        const storedName =
-            this.anonymousClientLeadSessionService.getStoredClientDisplayName();
-        const storedWhatsapp =
-            this.anonymousClientLeadSessionService.getStoredClientWhatsappNumber();
-        if (storedName) {
-            this.clientDisplayNameInputSignal.set(storedName);
-        }
-        if (storedWhatsapp) {
-            this.clientWhatsappInputSignal.set(storedWhatsapp);
-        }
-
-        const loadWithReferenceRegion = (userFacingLocationMessage: string) => {
-            this.latitudeSignal.set(
-                ClientDiscoveryPageComponent.referenceRegionLatitudeForDiscoveryFallback
-            );
-            this.longitudeSignal.set(
-                ClientDiscoveryPageComponent.referenceRegionLongitudeForDiscoveryFallback
-            );
-            this.locationMessageSignal.set(userFacingLocationMessage);
+        const initializeDiscoveryWithCoordinates = (
+            latitude: number,
+            longitude: number,
+            userFacingMessage: string
+        ) => {
+            this.latitudeSignal.set(latitude);
+            this.longitudeSignal.set(longitude);
+            this.locationMessageSignal.set(userFacingMessage);
             this.reloadNearbyBarbershops();
         };
 
         if (!navigator.geolocation) {
-            loadWithReferenceRegion(
-                'Geolocalizacao indisponivel neste navegador. Mostrando resultados na regiao de referencia (Sao Paulo).'
+            initializeDiscoveryWithCoordinates(
+                ClientDiscoveryPageComponent.referenceRegionLatitudeForDiscoveryFallback,
+                ClientDiscoveryPageComponent.referenceRegionLongitudeForDiscoveryFallback,
+                'Geolocalizacao indisponivel. Mostrando resultados na regiao de referencia (Sao Paulo).'
             );
             return;
         }
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                this.latitudeSignal.set(position.coords.latitude);
-                this.longitudeSignal.set(position.coords.longitude);
-                this.locationMessageSignal.set('Mostrando barbearias proximas a voce.');
-                this.reloadNearbyBarbershops();
+                initializeDiscoveryWithCoordinates(
+                    position.coords.latitude,
+                    position.coords.longitude,
+                    'Mostrando barbearias proximas a sua localizacao.'
+                );
             },
             () => {
-                loadWithReferenceRegion(
-                    'Nao foi possivel obter a localizacao. Mostrando resultados na regiao de referencia (Sao Paulo); permita o acesso para ver unidades mais proximas.'
+                initializeDiscoveryWithCoordinates(
+                    ClientDiscoveryPageComponent.referenceRegionLatitudeForDiscoveryFallback,
+                    ClientDiscoveryPageComponent.referenceRegionLongitudeForDiscoveryFallback,
+                    'Nao foi possivel obter a localizacao. Usando regiao de referencia (Sao Paulo).'
                 );
             }
         );
@@ -98,24 +85,38 @@ export class ClientDiscoveryPageComponent implements OnInit {
     protected reloadNearbyBarbershops(): void {
         const latitude = this.latitudeSignal();
         const longitude = this.longitudeSignal();
+
         if (latitude === null || longitude === null) {
             return;
         }
+
+        this.nearbyDiscoveryLoadingSignal.set(true);
+        this.nearbyDiscoveryErrorMessageSignal.set(null);
+        this.nearbyDiscoveryRequestFinishedSignal.set(false);
+
         this.barbershopSaasPublicHttpService
             .listNearbyBarbershopsForClientDiscovery({
                 latitude,
                 longitude,
-                radiusInMeters: 25000,
-                searchQuery: this.searchQuerySignal() || undefined,
+                radiusInMeters: 50000,
+                searchQuery: this.searchQuerySignal().trim() || undefined,
             })
             .subscribe({
-                next: (items) => {
-                    this.barbershopsSignal.set(items);
+                next: (barbershops) => {
+                    this.barbershopsSignal.set(barbershops);
+                    this.nearbyDiscoveryLoadingSignal.set(false);
                     this.nearbyDiscoveryRequestFinishedSignal.set(true);
                 },
-                error: () => {
-                    this.barbershopsSignal.set([]);
+                error: (httpError: unknown) => {
+                    this.nearbyDiscoveryLoadingSignal.set(false);
                     this.nearbyDiscoveryRequestFinishedSignal.set(true);
+                    this.barbershopsSignal.set([]);
+                    this.nearbyDiscoveryErrorMessageSignal.set(
+                        this.resolveUserFriendlyHttpErrorMessage(
+                            httpError,
+                            'Nao foi possivel carregar as barbearias. Verifique se o backend esta no ar.'
+                        )
+                    );
                 },
             });
     }
@@ -124,76 +125,53 @@ export class ClientDiscoveryPageComponent implements OnInit {
         this.reloadNearbyBarbershops();
     }
 
-    protected openContactFlow(barbershopTenantId: string): void {
-        this.selectedBarbershopIdSignal.set(barbershopTenantId);
-        this.contactContextBarbershopIdSignal.set(barbershopTenantId);
-        this.revealedWhatsappSignal.set(null);
-        const existingToken =
-            this.anonymousClientLeadSessionService.getLeadAccessTokenForBarbershop(
-                barbershopTenantId
-            );
-        if (existingToken) {
-            this.fetchWhatsappWithToken(barbershopTenantId, existingToken);
-            return;
-        }
-        this.contactDialogVisibleSignal.set(true);
-    }
-
-    protected submitLeadAndRevealWhatsapp(): void {
-        const barbershopTenantId = this.selectedBarbershopIdSignal();
-        if (!barbershopTenantId) {
-            return;
-        }
-        const clientDisplayName = this.clientDisplayNameInputSignal().trim();
-        const clientWhatsappNumber = this.clientWhatsappInputSignal().trim();
-        if (clientDisplayName.length < 2 || clientWhatsappNumber.length < 10) {
-            return;
-        }
-        this.anonymousClientLeadSessionService.saveClientDisplayProfile(
-            clientDisplayName,
-            clientWhatsappNumber
-        );
-        this.barbershopSaasPublicHttpService
-            .registerAnonymousClientLead({
-                barbershopTenantId,
-                clientDisplayName,
-                clientWhatsappNumber,
-            })
-            .subscribe({
-                next: (result) => {
-                    this.anonymousClientLeadSessionService.saveLeadAccessTokenForBarbershop(
-                        barbershopTenantId,
-                        result.leadAccessToken
-                    );
-                    this.contactDialogVisibleSignal.set(false);
-                    this.fetchWhatsappWithToken(
-                        barbershopTenantId,
-                        result.leadAccessToken
-                    );
-                },
-            });
-    }
-
-    private fetchWhatsappWithToken(
-        barbershopTenantId: string,
-        leadAccessToken: string
-    ): void {
-        this.barbershopSaasPublicHttpService
-            .getWhatsappContactForVerifiedLead(barbershopTenantId, leadAccessToken)
-            .subscribe({
-                next: (result) => this.revealedWhatsappSignal.set(result.whatsappContact),
-            });
-    }
-
     protected openServicesDialog(barbershopTenantId: string): void {
-        this.selectedBarbershopIdSignal.set(barbershopTenantId);
+        this.servicesDialogErrorMessageSignal.set(null);
+        this.servicesDialogLoadingSignal.set(true);
+        this.servicesDialogVisibleSignal.set(true);
+        this.servicesForSelectedSignal.set([]);
+
         this.barbershopSaasPublicHttpService
             .listPublicServiceOfferingsForBarbershop(barbershopTenantId)
             .subscribe({
                 next: (services) => {
                     this.servicesForSelectedSignal.set(services);
-                    this.servicesDialogVisibleSignal.set(true);
+                    this.servicesDialogLoadingSignal.set(false);
+                },
+                error: (httpError: unknown) => {
+                    this.servicesDialogLoadingSignal.set(false);
+                    this.servicesDialogErrorMessageSignal.set(
+                        this.resolveUserFriendlyHttpErrorMessage(
+                            httpError,
+                            'Nao foi possivel carregar os servicos.'
+                        )
+                    );
                 },
             });
+    }
+
+    protected openWhatsappContact(shop: BarbershopDiscoveryCardInterface): void {
+        const rawWhatsapp = shop.whatsappContact?.replace(/\D/g, '') ?? '';
+
+        if (!rawWhatsapp) {
+            window.alert(
+                'Esta barbearia ainda nao informou WhatsApp no cadastro. Tente outro canal de contato.'
+            );
+            return;
+        }
+
+        const whatsappUrl = `https://wa.me/55${rawWhatsapp}`;
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    }
+
+    private resolveUserFriendlyHttpErrorMessage(
+        httpError: unknown,
+        fallbackMessage: string
+    ): string {
+        const errorPayload = httpError as {
+            error?: { userFriendlyMessage?: string };
+        };
+
+        return errorPayload.error?.userFriendlyMessage ?? fallbackMessage;
     }
 }

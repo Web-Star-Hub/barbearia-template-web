@@ -13,10 +13,10 @@
             <h1 class="client-discovery-page__title">Encontre uma barbearia</h1>
             <p class="client-discovery-page__hero-text">
                 Veja unidades perto de voce (ou na regiao de referencia se a localizacao
-                estiver bloqueada), confira se estao abertas, servicos e peca o WhatsApp
-                com um clique.
+                estiver bloqueada) e consulte servicos publicados pela API.
             </p>
             <p class="client-discovery-page__location">{{ locationMessageSignal() }}</p>
+
             <div class="client-discovery-page__search">
                 <input
                     pInputText
@@ -43,15 +43,14 @@
             <article class="client-discovery-page__tip">
                 <h2 class="client-discovery-page__tip-title">WhatsApp</h2>
                 <p class="client-discovery-page__tip-text">
-                    Informe nome e WhatsApp uma vez; guardamos para agilizar o proximo
-                    contato com a mesma barbearia.
+                    O botao abre o WhatsApp quando a unidade informou o numero no cadastro.
                 </p>
             </article>
             <article class="client-discovery-page__tip">
                 <h2 class="client-discovery-page__tip-title">Servicos</h2>
                 <p class="client-discovery-page__tip-text">
-                    Abra a lista de servicos antes de chamar para saber precos e tempo
-                    medio de cada corte ou combo.
+                    A lista vem da API publica; cadastre servicos no painel da barbearia para
+                    aparecer aqui.
                 </p>
             </article>
         </div>
@@ -59,76 +58,59 @@
 
     <section class="client-discovery-page__results">
         <h2 class="client-discovery-page__results-title">Resultados</h2>
-        @if (nearbyDiscoveryRequestFinishedSignal() && barbershopsSignal().length === 0) {
+
+        @if (nearbyDiscoveryLoadingSignal()) {
+            <p class="client-discovery-page__empty">Carregando barbearias...</p>
+        }
+
+        @if (nearbyDiscoveryErrorMessageSignal(); as discoveryError) {
+            <p class="client-discovery-page__empty">{{ discoveryError }}</p>
+        }
+
+        @if (
+            nearbyDiscoveryRequestFinishedSignal() &&
+            !nearbyDiscoveryLoadingSignal() &&
+            barbershopsSignal().length === 0 &&
+            !nearbyDiscoveryErrorMessageSignal()
+        ) {
             <p class="client-discovery-page__empty">
                 Nenhuma barbearia encontrada com os filtros atuais. Tente outro nome ou
-                amplie a busca quando a API tiver mais cadastros na regiao.
+                cadastre uma unidade na regiao.
             </p>
         }
+
         <div class="client-discovery-page__grid">
             @for (shop of barbershopsSignal(); track shop.barbershopTenantId) {
                 <p-card class="client-discovery-page__card" [header]="shop.tradingName">
                     <div class="client-discovery-page__card-image-wrap">
                         <img [src]="shop.profileImageUrl" [alt]="shop.tradingName" />
                     </div>
+
                     <p class="client-discovery-page__address">
                         {{ shop.formattedAddress }}
                     </p>
+
                     <p-tag
                         [severity]="shop.isOpenNow ? 'success' : 'danger'"
                         [value]="shop.isOpenNow ? 'Aberto agora' : 'Fechado agora'"
                     />
+
                     <div class="client-discovery-page__actions">
                         <p-button
                             label="Ver servicos"
                             (click)="openServicesDialog(shop.barbershopTenantId)"
                         />
+
                         <p-button
-                            label="Ver WhatsApp"
+                            label="WhatsApp"
                             severity="help"
-                            (click)="openContactFlow(shop.barbershopTenantId)"
+                            (click)="openWhatsappContact(shop)"
                         />
                     </div>
-                    @if (
-                        revealedWhatsappSignal() &&
-                        contactContextBarbershopIdSignal() === shop.barbershopTenantId
-                    ) {
-                        <p class="client-discovery-page__whatsapp">
-                            WhatsApp: {{ revealedWhatsappSignal() }}
-                        </p>
-                    }
                 </p-card>
             }
         </div>
     </section>
-
-    <p-dialog
-        header="Seus dados"
-        [visible]="contactDialogVisibleSignal()"
-        (visibleChange)="contactDialogVisibleSignal.set($event)"
-        [modal]="true"
-        [style]="{ width: 'min(420px, 92vw)' }"
-    >
-        <div class="client-discovery-page__dialog-fields">
-            <label>
-                Nome
-                <input
-                    pInputText
-                    [ngModel]="clientDisplayNameInputSignal()"
-                    (ngModelChange)="clientDisplayNameInputSignal.set($event)"
-                />
-            </label>
-            <label>
-                WhatsApp
-                <input
-                    pInputText
-                    [ngModel]="clientWhatsappInputSignal()"
-                    (ngModelChange)="clientWhatsappInputSignal.set($event)"
-                />
-            </label>
-        </div>
-        <p-button label="Continuar" (click)="submitLeadAndRevealWhatsapp()" />
-    </p-dialog>
 
     <p-dialog
         header="Servicos"
@@ -137,6 +119,19 @@
         [modal]="true"
         [style]="{ width: 'min(480px, 92vw)' }"
     >
+        @if (servicesDialogLoadingSignal()) {
+            <p>Carregando servicos...</p>
+        }
+        @if (servicesDialogErrorMessageSignal(); as servicesError) {
+            <p>{{ servicesError }}</p>
+        }
+        @if (
+            !servicesDialogLoadingSignal() &&
+            !servicesDialogErrorMessageSignal() &&
+            servicesForSelectedSignal().length === 0
+        ) {
+            <p>Nenhum servico publicado ainda para esta unidade.</p>
+        }
         <ul class="client-discovery-page__service-list">
             @for (service of servicesForSelectedSignal(); track service.id) {
                 <li>

@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -10,22 +10,111 @@ import {
     SubscriptionPlanDefinitionInterface,
 } from '../../../core/models/barbershop-saas.models';
 
+type ApiPlanDocument = {
+    identifier: string;
+    displayName: string;
+    monthlyPriceInCents: number;
+    includedFeatures: string[];
+    isActive: boolean;
+};
+
+type BarbershopLocationApiRow = {
+    identifier: string;
+    barbershopName: string;
+    ownerFullName: string;
+    ownerEmail: string;
+    cityName: string;
+    stateCode: string;
+    registrationStatus: string;
+    location: { latitude: number; longitude: number };
+    whatsappContact?: string;
+};
+
+type BarbershopLocationDiscoveryResponse = {
+    searchCenter: { latitude: number; longitude: number };
+    radiusInKilometers: number;
+    barbershops: BarbershopLocationApiRow[];
+};
+
 @Injectable({
     providedIn: 'root',
 })
 export class BarbershopSaasPublicHttpService {
-    private readonly apiRootUrl = `${environment.apiBaseUrl}/api`;
+    private readonly apiRootUrl = environment.apiBaseUrl;
 
     constructor(private readonly httpClient: HttpClient) {}
+
+    private mapPlanToSubscriptionDefinition(
+        plan: ApiPlanDocument
+    ): SubscriptionPlanDefinitionInterface {
+        const maximumProfessionalsPerBarbershop =
+            plan.identifier === 'basic' ? 1 : plan.identifier === 'professional' ? 3 : 6;
+
+        return {
+            id: plan.identifier,
+            planDisplayName: plan.displayName,
+            planMarketingDescription: plan.includedFeatures.join(' · '),
+            monthlyPriceInCents: plan.monthlyPriceInCents,
+            yearlyPriceInCents: plan.monthlyPriceInCents * 12,
+            maximumProfessionalsPerBarbershop,
+            includedFeatureLabels: plan.includedFeatures,
+            isActiveForNewSubscriptions: plan.isActive,
+        };
+    }
+
+    private mapBarbershopToDiscoveryCard(
+        row: BarbershopLocationApiRow
+    ): BarbershopDiscoveryCardInterface {
+        const formattedAddressLine = `${row.cityName} - ${row.stateCode}`;
+
+        return {
+            barbershopTenantId: row.identifier,
+            tradingName: row.barbershopName,
+            profileImageUrl: 'https://placehold.co/400x260/1a1a1a/ffffff?text=Barbearia',
+            formattedAddress: formattedAddressLine,
+            isOpenNow: true,
+            opensOnPublicHolidays: false,
+            whatsappContact: row.whatsappContact?.trim() || undefined,
+        };
+    }
+
+    private mapBarbershopToLoginOption(
+        row: BarbershopLocationApiRow
+    ): BarbershopLoginOptionInterface {
+        return {
+            barbershopTenantId: row.identifier,
+            tradingName: row.barbershopName,
+            profileImageUrl: 'https://placehold.co/400x260/1a1a1a/ffffff?text=Barbearia',
+            formattedAddress: `${row.cityName} - ${row.stateCode}`,
+        };
+    }
 
     public listSubscriptionPlanDefinitions(): Observable<
         SubscriptionPlanDefinitionInterface[]
     > {
         return this.httpClient
             .get<
-                ApiSuccessResponseInterface<SubscriptionPlanDefinitionInterface[]>
-            >(`${this.apiRootUrl}/saas/public/subscription-plan-definitions`)
-            .pipe(map((response) => response.data));
+                ApiSuccessResponseInterface<ApiPlanDocument[]>
+            >(`${this.apiRootUrl}/plans`)
+            .pipe(
+                map((response) =>
+                    response.data.map((plan) =>
+                        this.mapPlanToSubscriptionDefinition(plan)
+                    )
+                )
+            );
+    }
+
+    public getPublicApiHealth(): Observable<{ status: string }> {
+        return this.httpClient
+            .get<
+                ApiSuccessResponseInterface<{
+                    status: string;
+                    service?: string;
+                    timestamp?: string;
+                }>
+            >(`${this.apiRootUrl}/public-services/health`)
+            .pipe(map((response) => ({ status: response.data.status })));
     }
 
     public listNearbyBarbershopsForClientDiscovery(input: {
@@ -34,21 +123,38 @@ export class BarbershopSaasPublicHttpService {
         radiusInMeters?: number;
         searchQuery?: string;
     }): Observable<BarbershopDiscoveryCardInterface[]> {
-        const params = new URLSearchParams({
+        const radiusInKilometers = Math.max(
+            1,
+            Math.round((input.radiusInMeters ?? 50000) / 1000)
+        );
+
+        const queryParameters = new URLSearchParams({
             latitude: String(input.latitude),
             longitude: String(input.longitude),
+            radiusInKilometers: String(radiusInKilometers),
         });
-        if (input.radiusInMeters !== undefined) {
-            params.set('radiusInMeters', String(input.radiusInMeters));
-        }
-        if (input.searchQuery) {
-            params.set('searchQuery', input.searchQuery);
-        }
+
         return this.httpClient
             .get<
-                ApiSuccessResponseInterface<BarbershopDiscoveryCardInterface[]>
-            >(`${this.apiRootUrl}/saas/public/barbershops/nearby-discovery?${params.toString()}`)
-            .pipe(map((response) => response.data));
+                ApiSuccessResponseInterface<BarbershopLocationDiscoveryResponse>
+            >(`${this.apiRootUrl}/barbershop-location-discovery?${queryParameters.toString()}`)
+            .pipe(
+                map((response) => {
+                    let mappedRows = response.data.barbershops.map((row) =>
+                        this.mapBarbershopToDiscoveryCard(row)
+                    );
+
+                    const normalizedSearchQuery = input.searchQuery?.trim().toLowerCase();
+
+                    if (normalizedSearchQuery) {
+                        mappedRows = mappedRows.filter((card) =>
+                            card.tradingName.toLowerCase().includes(normalizedSearchQuery)
+                        );
+                    }
+
+                    return mappedRows;
+                })
+            );
     }
 
     public listNearbyBarbershopsForProfessionalLogin(input: {
@@ -57,48 +163,80 @@ export class BarbershopSaasPublicHttpService {
         radiusInMeters?: number;
         searchQuery?: string;
     }): Observable<BarbershopLoginOptionInterface[]> {
-        const params = new URLSearchParams({
+        const radiusInKilometers = Math.max(
+            1,
+            Math.round((input.radiusInMeters ?? 200000) / 1000)
+        );
+
+        const queryParameters = new URLSearchParams({
             latitude: String(input.latitude),
             longitude: String(input.longitude),
+            radiusInKilometers: String(radiusInKilometers),
         });
-        if (input.radiusInMeters !== undefined) {
-            params.set('radiusInMeters', String(input.radiusInMeters));
-        }
-        if (input.searchQuery) {
-            params.set('searchQuery', input.searchQuery);
-        }
+
         return this.httpClient
             .get<
-                ApiSuccessResponseInterface<BarbershopLoginOptionInterface[]>
-            >(`${this.apiRootUrl}/saas/public/barbershops/nearby-login-selection?${params.toString()}`)
-            .pipe(map((response) => response.data));
+                ApiSuccessResponseInterface<BarbershopLocationDiscoveryResponse>
+            >(`${this.apiRootUrl}/barbershop-location-discovery?${queryParameters.toString()}`)
+            .pipe(
+                map((response) => {
+                    let mappedRows = response.data.barbershops.map((row) =>
+                        this.mapBarbershopToLoginOption(row)
+                    );
+
+                    const normalizedSearchQuery = input.searchQuery?.trim().toLowerCase();
+
+                    if (normalizedSearchQuery) {
+                        mappedRows = mappedRows.filter((card) =>
+                            card.tradingName.toLowerCase().includes(normalizedSearchQuery)
+                        );
+                    }
+
+                    return mappedRows;
+                })
+            );
     }
 
-    public registerAnonymousClientLead(payload: {
-        barbershopTenantId: string;
-        clientDisplayName: string;
-        clientWhatsappNumber: string;
-    }): Observable<{ leadAccessToken: string }> {
+    public registerBarbershop(payload: {
+        barbershopName: string;
+        ownerFullName: string;
+        ownerEmail: string;
+        cityName: string;
+        stateCode: string;
+        latitude: number;
+        longitude: number;
+        ownerPassword: string;
+        profileImageUrl?: string;
+        whatsappContact?: string;
+        emailContact?: string;
+        taxIdentificationNumber?: string;
+        formattedAddress?: string;
+        opensOnPublicHolidays?: boolean;
+        timezoneIdentifier?: string;
+        openingHoursByWeekday?: Record<string, { opensAt: string; closesAt: string }[]>;
+    }): Observable<{
+        identifier: string;
+        barbershopName: string;
+        ownerFullName: string;
+        ownerEmail: string;
+        cityName: string;
+        stateCode: string;
+        registrationStatus: string;
+        location: { latitude: number; longitude: number };
+    }> {
         return this.httpClient
             .post<
-                ApiSuccessResponseInterface<{ leadAccessToken: string }>
-            >(`${this.apiRootUrl}/saas/public/anonymous-client-leads`, payload)
-            .pipe(map((response) => response.data));
-    }
-
-    public getWhatsappContactForVerifiedLead(
-        barbershopTenantId: string,
-        leadAccessToken: string
-    ): Observable<{ whatsappContact: string }> {
-        return this.httpClient
-            .get<ApiSuccessResponseInterface<{ whatsappContact: string }>>(
-                `${this.apiRootUrl}/saas/public/barbershops/${barbershopTenantId}/whatsapp-contact`,
-                {
-                    headers: new HttpHeaders({
-                        Authorization: `Bearer ${leadAccessToken}`,
-                    }),
-                }
-            )
+                ApiSuccessResponseInterface<{
+                    identifier: string;
+                    barbershopName: string;
+                    ownerFullName: string;
+                    ownerEmail: string;
+                    cityName: string;
+                    stateCode: string;
+                    registrationStatus: string;
+                    location: { latitude: number; longitude: number };
+                }>
+            >(`${this.apiRootUrl}/barbershop-registration`, payload)
             .pipe(map((response) => response.data));
     }
 
@@ -108,23 +246,7 @@ export class BarbershopSaasPublicHttpService {
         return this.httpClient
             .get<
                 ApiSuccessResponseInterface<BarbershopServiceOfferingInterface[]>
-            >(`${this.apiRootUrl}/saas/public/barbershops/${barbershopTenantId}/public-service-offerings`)
-            .pipe(map((response) => response.data));
-    }
-
-    public completeBarbershopOnboarding(payload: unknown): Observable<{
-        barbershopTenantId: string;
-        generatedPasswordsByProfessionalName: Record<string, string>;
-        accessTokenPlaceholder: null;
-    }> {
-        return this.httpClient
-            .post<
-                ApiSuccessResponseInterface<{
-                    barbershopTenantId: string;
-                    generatedPasswordsByProfessionalName: Record<string, string>;
-                    accessTokenPlaceholder: null;
-                }>
-            >(`${this.apiRootUrl}/saas/public/barbershop-onboarding/complete`, payload)
+            >(`${this.apiRootUrl}/barbershops/${barbershopTenantId}/public-service-offerings`)
             .pipe(map((response) => response.data));
     }
 
@@ -136,7 +258,7 @@ export class BarbershopSaasPublicHttpService {
         return this.httpClient
             .post<
                 ApiSuccessResponseInterface<{ profileImageUrl: string }>
-            >(`${this.apiRootUrl}/saas/public/profile-images`, multipartBody)
+            >(`${this.apiRootUrl}/public-file-uploads/profile-image`, multipartBody)
             .pipe(map((response) => response.data));
     }
 }

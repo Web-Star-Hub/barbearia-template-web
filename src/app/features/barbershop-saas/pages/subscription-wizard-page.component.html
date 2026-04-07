@@ -12,18 +12,33 @@
         </p>
     }
 
+    @if (plansCatalogLoadingSignal()) {
+        <p>Carregando planos da API...</p>
+    }
+
+    @if (registrationErrorMessageSignal(); as registrationError) {
+        <p class="subscription-wizard__error">
+            {{ registrationError }}
+        </p>
+    }
+
     @if (
         isAwaitingUserSubscriptionPlanChoiceSignal() &&
-        !subscriptionPlanCatalogRequestFailedSignal()
+        !subscriptionPlanCatalogRequestFailedSignal() &&
+        !plansCatalogLoadingSignal()
     ) {
         <section class="subscription-wizard__plan-picker">
             @if (invalidPlanFromQueryMessageSignal(); as invalidMessage) {
-                <p class="subscription-wizard__warn">{{ invalidMessage }}</p>
+                <p class="subscription-wizard__warn">
+                    {{ invalidMessage }}
+                </p>
             }
+
             <p class="subscription-wizard__plan-picker-intro">
                 Escolha o plano pelo tamanho da sua equipe. Voce podera revisar os dados
                 antes de concluir.
             </p>
+
             <div class="subscription-wizard__plan-grid">
                 @for (plan of subscriptionPlanCatalogSignal(); track plan.id) {
                     <p-card
@@ -135,11 +150,33 @@
                         [(ngModel)]="taxIdentificationInput"
                         name="cnpj"
                 /></label>
-                <label
-                    >Endereco completo<input
+                <label>
+                    Endereço completo
+                    <input
                         pInputText
                         [(ngModel)]="formattedAddressInput"
                         name="address"
+                        #addressInput
+                        placeholder="Buscar endereço"
+                    />
+                </label>
+                <label
+                    >Cidade<input pInputText [(ngModel)]="cityNameInput" name="cityName"
+                /></label>
+                <label
+                    >UF (2 letras)<input
+                        pInputText
+                        [(ngModel)]="stateCodeInput"
+                        name="stateCode"
+                        maxlength="2"
+                /></label>
+                <label
+                    >Senha do proprietario (login no painel)<input
+                        type="password"
+                        pInputText
+                        [(ngModel)]="ownerPasswordInput"
+                        name="ownerPassword"
+                        autocomplete="new-password"
                 /></label>
                 <label
                     >Latitude
@@ -166,10 +203,38 @@
                     />
                     <label for="opensHolidays">Abre em feriados</label>
                 </div>
-                <p class="subscription-wizard__note">
-                    Horarios padrao: seg-sex 09h-18h, sab 09h-14h, domingo fechado
-                    (ajustavel depois no painel).
-                </p>
+                <label>
+                    Dias de funcionamento
+                    <select multiple [(ngModel)]="workingDaysInput" name="workingDays">
+                        <option value="0">Domingo</option>
+                        <option value="1">Segunda</option>
+                        <option value="2">Terca</option>
+                        <option value="3">Quarta</option>
+                        <option value="4">Quinta</option>
+                        <option value="5">Sexta</option>
+                        <option value="6">Sabado</option>
+                    </select>
+                </label>
+
+                <label>
+                    Horario de abertura
+                    <input
+                        type="time"
+                        pInputText
+                        [(ngModel)]="openingTimeInput"
+                        name="openingTime"
+                    />
+                </label>
+
+                <label>
+                    Horario de fechamento
+                    <input
+                        type="time"
+                        pInputText
+                        [(ngModel)]="closingTimeInput"
+                        name="closingTime"
+                    />
+                </label>
                 <p-button label="Proximo" (click)="advanceStep()" />
             </div>
         }
@@ -324,7 +389,12 @@
                         severity="secondary"
                         (click)="goBackStep()"
                     />
-                    <p-button label="Concluir cadastro" (click)="submitWizard()" />
+                    <p-button
+                        label="Concluir cadastro"
+                        (click)="submitWizard()"
+                        [disabled]="registrationSubmittingSignal()"
+                        [loading]="registrationSubmittingSignal()"
+                    />
                 </div>
             </div>
         }
@@ -341,6 +411,7 @@
             Guarde as senhas geradas. Voce podera redefini-las no painel como
             administrador.
         </p>
+
         <ul>
             @for (entry of generatedPasswordsSignal() | keyvalue; track entry.key) {
                 <li>
@@ -349,8 +420,11 @@
                 </li>
             }
         </ul>
-        <a routerLink="/barbearia">
-            <p-button label="Ir para login da barbearia" />
-        </a>
+
+        @if (completionSummaryMessageSignal()) {
+            <p>{{ completionSummaryMessageSignal() }}</p>
+        }
+
+        <p-button label="Ir para login da barbearia" routerLink="/barbearia" />
     </p-dialog>
 </div>

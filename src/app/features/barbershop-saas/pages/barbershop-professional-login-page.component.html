@@ -16,7 +16,7 @@
                 mesmo sistema que seus clientes veem na busca publica.
             </p>
             <ul class="barbershop-login-page__bullets">
-                <li>Login seguro por unidade e perfil</li>
+                <li>Login com e-mail e senha do proprietario cadastrado na API</li>
                 <li>Administrador e barbeiro com permissoes distintas</li>
                 <li>Lista de unidades proximas ou filtrada por nome</li>
             </ul>
@@ -44,27 +44,30 @@
                 />
             </div>
 
+            @if (loginDirectoryLoadingSignal()) {
+                <p>Carregando unidades...</p>
+            }
+
+            @if (!loginDirectoryLoadingSignal() && loginOptionsSignal().length > 0) {
+                <ul class="barbershop-login-page__nearby-list">
+                    @for (option of loginOptionsSignal(); track option.barbershopTenantId) {
+                        <li>
+                            <strong>{{ option.tradingName }}</strong>
+                            — {{ option.formattedAddress }}
+                        </li>
+                    }
+                </ul>
+            }
+
             <form class="barbershop-login-page__form" (submit)="$event.preventDefault()">
                 <label>
-                    Barbearia
-                    <p-select
-                        [options]="loginOptionsSignal()"
-                        [(ngModel)]="selectedBarbershopTenantId"
-                        name="barbershopTenantId"
-                        optionLabel="tradingName"
-                        optionValue="barbershopTenantId"
-                        placeholder="Selecione"
-                        [filter]="true"
-                        filterBy="tradingName,formattedAddress"
-                        [style]="{ width: '100%' }"
-                    />
-                </label>
-                <label>
-                    E-mail ou telefone
+                    E-mail do proprietario
                     <input
                         pInputText
-                        name="loginIdentifier"
-                        [(ngModel)]="loginIdentifierInput"
+                        type="email"
+                        name="loginEmail"
+                        [(ngModel)]="loginEmailInput"
+                        autocomplete="email"
                     />
                 </label>
                 <label>

@@ -13,9 +13,7 @@ export const authenticationTokenInterceptor: HttpInterceptorFn = (request, next)
         BarbershopProfessionalSessionService
     );
 
-    const usesBarbershopProfessionalToken = request.url.includes(
-        '/saas/barbershop-panel'
-    );
+    const usesBarbershopProfessionalToken = request.url.includes('/barbershop-panel');
     const accessToken = usesBarbershopProfessionalToken
         ? barbershopProfessionalSessionService.getAccessToken()
         : authenticationStateService.getAccessToken();
